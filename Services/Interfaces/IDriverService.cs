@@ -14,5 +14,6 @@ namespace FleetPulse_BackEndDevelopment.Services.Interfaces
         Task<bool> ActivateDriverAsync(int id);
         Task<bool> DoesEmailExistAsync(string email);
         Task<bool> DoesUsernameExistAsync(string username);
+        Task<int> GetDriverCountAsync();
     }
 }

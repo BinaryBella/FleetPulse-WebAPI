@@ -20,6 +20,20 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             _driverService = driverService ?? throw new ArgumentNullException(nameof(driverService));
         }
 
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetHelpersCount()
+        {
+            try
+            {
+                var count = await _driverService.GetDriverCountAsync();
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Failed to retrieve helpers count: {ex.Message}");
+            }
+        }
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DriverDTO>>> GetAllDrivers()
         {
