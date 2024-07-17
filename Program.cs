@@ -96,13 +96,13 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     {
         o.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidIssuer = configuration["Jwt:Issuer"],
-            ValidAudience = configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"])),
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
-            ValidateIssuerSigningKey = true
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = configuration["Jwt:Issuer"],
+            ValidAudience = configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
         };
     });
 
@@ -128,6 +128,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddAutoMapper(typeof(MappingProfiles));
 
     // Declared services
+    services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
     services.AddScoped<DBSeeder>();
     services.AddScoped<IVehicleTypeService, VehicleTypeService>();
     services.AddScoped<IManufactureService, ManufactureService>();
@@ -138,10 +139,10 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<IStaffService, StaffService>();
     services.AddScoped<IAccidentService, AccidentService>();
     services.AddScoped<IPushNotificationService, PushNotificationService>();
-    services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
-    services.AddTransient<IMailService, MailService>();
-    services.AddTransient<IVerificationCodeService, VerificationCodeService>();
-    services.AddTransient<IAuthService, AuthService>();
+    services.AddScoped<IMailService, MailService>();
+    services.AddScoped<IVerificationCodeService, VerificationCodeService>();
+    services.AddScoped<IAuthService, AuthService>();
+    services.AddScoped<IJwtService, JwtService>();
     services.AddScoped<DBSeeder>();
     services.AddScoped<IVehicleMaintenanceService, VehicleMaintenanceService>();
     services.AddScoped<IVehicleMaintenanceTypeService, VehicleMaintenanceTypeService>();
@@ -151,7 +152,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<IVehicleMaintenanceConfigurationService, VehicleMaintenanceConfigurationService>();
     services.AddScoped<SendMaintenanceNotificationJob>();
     services.AddScoped<IDriverService, DriverService>();
-    services.AddTransient<IEmailUserCredentialService, EmailUserCredentialService>();
+    services.AddScoped<IEmailUserCredentialService, EmailUserCredentialService>();
 
     // Add logging (if needed)
     services.AddLogging();

@@ -24,9 +24,7 @@ namespace FleetPulse_BackEndDevelopment.Configurations
 
             builder.Property(rt => rt.IsRevoked)
                 .IsRequired();
-
-            builder.Property(rt => rt.UserId)
-                .IsRequired();
+            
         }
     }
 }

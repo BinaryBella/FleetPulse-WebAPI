@@ -12,25 +12,25 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FleetPulse_BackEndDevelopment.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace FleetPulse_BackEndDevelopment.Services
 {
     public class AuthService : IAuthService
     {
         private readonly FleetPulseDbContext dataContext;
-        private readonly IConfiguration configuration;
 
-        public AuthService(FleetPulseDbContext dataContext, IConfiguration configuration)
+        public AuthService(FleetPulseDbContext dataContext)
         {
             this.dataContext = dataContext;
-            this.configuration = configuration;
         }
 
-        public User IsAuthenticated(string username, string password)
+        public User? IsAuthenticated(string username, string password)
         {
-            var user = this.GetByUsername(username);
-            return this.DoesUserExists(username) && BCrypt.Net.BCrypt.Verify(password, user.HashedPassword) ? user : null;
+            var user = GetByUsername(username);
+            return DoesUserExists(username) && BCrypt.Net.BCrypt.Verify(password, user.HashedPassword) ? user : null;
         }
 
         public async Task<int> GetUserCountAsync()
@@ -202,90 +202,6 @@ namespace FleetPulse_BackEndDevelopment.Services
         {
             var user = await dataContext.Users.FirstOrDefaultAsync(c => c.NIC == nic);
             return user?.UserId;
-        }
-
-        public async Task<TokenResponse> Authenticate(User user)
-        {
-            var existingUser = await dataContext.Users
-                .SingleOrDefaultAsync(u => u.UserName == user.UserName);
-
-            if (existingUser == null || !BCrypt.Net.BCrypt.Verify(user.HashedPassword, existingUser.HashedPassword))
-                throw new UnauthorizedAccessException();
-
-            var token = await GenerateJwtToken(existingUser.UserName, existingUser.JobTitle);
-            var refreshToken = await GenerateRefreshToken(existingUser.UserId);
-            
-            return new TokenResponse { AccessToken = token, RefreshToken = refreshToken };
-        }
-
-        public async Task<string> GenerateJwtToken(string username, string jobTitle)
-        {
-            var issuer = configuration["Jwt:Issuer"];
-            var audience = configuration["Jwt:Audience"];
-            var key = Encoding.ASCII.GetBytes(configuration["Jwt:Key"]);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim("Id", Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Sub, username),
-                    new Claim(JwtRegisteredClaimNames.Email, username),
-                    new Claim(ClaimTypes.Role, jobTitle),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(30),
-                Issuer = issuer,
-                Audience = audience,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512Signature)
-            };
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return await Task.FromResult(tokenHandler.WriteToken(token));
-        }
-
-        public async Task<string> GenerateRefreshToken(int userId)
-        {
-            var randomBytes = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomBytes);
-            }
-
-            var refreshToken = new RefreshToken
-            {
-                Token = Convert.ToBase64String(randomBytes),
-                Expires = DateTime.UtcNow.AddDays(7),
-                IsRevoked = false,
-                UserId = userId
-            };
-
-            await dataContext.RefreshTokens.AddAsync(refreshToken);
-            await dataContext.SaveChangesAsync();
-
-            return refreshToken.Token;
-        }
-
-        public async Task<TokenResponse> RefreshToken(string token)
-        {
-            var refreshTokenEntity = await dataContext.RefreshTokens
-                .SingleOrDefaultAsync(rt => rt.Token == token && rt.Expires > DateTime.UtcNow && !rt.IsRevoked);
-
-            if (refreshTokenEntity == null)
-                throw new UnauthorizedAccessException();
-
-            var userId = refreshTokenEntity.UserId;
-            var user = await dataContext.Users.FindAsync(userId);
-            if (user == null)
-                throw new UnauthorizedAccessException();
-
-            var newJwtToken = await GenerateJwtToken(user.UserName, user.JobTitle);
-            var newRefreshToken = await GenerateRefreshToken(userId);
-
-            refreshTokenEntity.IsRevoked = true;
-
-            await dataContext.SaveChangesAsync();
-
-            return new TokenResponse { AccessToken = newJwtToken, RefreshToken = newRefreshToken };
         }
 
         public async Task<bool> IsRefreshTokenValidAsync(string token)

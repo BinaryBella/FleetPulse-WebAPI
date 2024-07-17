@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace FleetPulse_BackEndDevelopment.Models
 {
     public class RefreshToken
@@ -6,6 +8,5 @@ namespace FleetPulse_BackEndDevelopment.Models
         public string Token { get; set; }
         public DateTime Expires { get; set; }
         public bool IsRevoked { get; set; }
-        public int UserId { get; set; }
     }
 }

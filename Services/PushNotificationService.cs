@@ -5,11 +5,7 @@ using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using FleetPulse_BackEndDevelopment.Data;
 
 namespace FleetPulse_BackEndDevelopment.Services
@@ -37,39 +33,6 @@ namespace FleetPulse_BackEndDevelopment.Services
                 {
                     Credential = GoogleCredential.FromFile("Configuration/serviceAccountKey.json"),
                 });
-            }
-        }
-
-        public async Task SendNotificationAsync(string fcmDeviceToken, string title, string message, string username)
-        {
-            if (string.IsNullOrEmpty(fcmDeviceToken))
-            {
-                _logger.LogWarning("FCM Device Token not found.");
-                return;
-            }
-
-            var notification = new Message()
-            {
-                Token = fcmDeviceToken,
-                Notification = new Notification
-                {
-                    Title = title,
-                    Body = message
-                },
-                Data = new Dictionary<string, string>
-                {
-                    { "username", username }
-                }
-            };
-
-            try
-            {
-                var response = await FirebaseMessaging.DefaultInstance.SendAsync(notification);
-                _logger.LogInformation("Successfully sent message: " + response);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending notification.");
             }
         }
 

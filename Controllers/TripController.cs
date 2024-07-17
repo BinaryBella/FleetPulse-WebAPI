@@ -1,10 +1,12 @@
 ﻿using FleetPulse_BackEndDevelopment.Data.DTO;
 using FleetPulse_BackEndDevelopment.Models;
 using FleetPulse_BackEndDevelopment.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TripController : ControllerBase

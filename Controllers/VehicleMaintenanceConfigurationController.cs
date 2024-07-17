@@ -1,9 +1,11 @@
 using FleetPulse_BackEndDevelopment.Data.DTO;
 using FleetPulse_BackEndDevelopment.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
+    [Authorize(Roles = "Admin,Staff")]
     [Route("api/[controller]")]
     [ApiController]
     public class VehicleMaintenanceConfigurationController : ControllerBase

@@ -18,8 +18,6 @@ namespace FleetPulse_BackEndDevelopment.Models
         public Vehicle Vehicle { get; set; }
         public bool Status { get; set; }
         public ICollection<AccidentUser> AccidentUsers { get; set; }
-
-
     }
 }
 

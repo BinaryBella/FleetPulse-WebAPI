@@ -1,4 +1,4 @@
-﻿using FleetPulse_BackEndDevelopment.Models;
+﻿using FleetPulse_BackEndDevelopment.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,14 +6,13 @@ namespace FleetPulse_BackEndDevelopment.Services.Interfaces
 {
     public interface IDriverService
     {
-        Task<IEnumerable<User>> GetAllDriversAsync();
-        Task<User> GetDriverByIdAsync(int id);
-        Task<bool> IsDriverExist(int id);
-        bool DoesDriverExist(string NIC);
-        Task<User> AddDriverAsync(User driver);
-        Task<bool> UpdateDriverAsync(User driver);
-        Task ActivateDriverAsync(int id);
-        Task DeactivateDriverAsync(int userId);
-        Task<int> GetDriverCountAsync();
+        Task<IEnumerable<DriverDTO>> GetAllDriversAsync();
+        Task<DriverDTO> GetDriverByIdAsync(int id);
+        Task<DriverDTO> CreateDriverAsync(DriverDTO driverDto);
+        Task<DriverDTO> UpdateDriverAsync(int id, DriverDTO driverDto);
+        Task<bool> DeactivateDriverAsync(int id);
+        Task<bool> ActivateDriverAsync(int id);
+        Task<bool> DoesEmailExistAsync(string email);
+        Task<bool> DoesUsernameExistAsync(string username);
     }
 }

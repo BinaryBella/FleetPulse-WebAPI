@@ -1,83 +1,64 @@
-﻿using FleetPulse_BackEndDevelopment.Data;
-using FleetPulse_BackEndDevelopment.Models;
+﻿using FleetPulse_BackEndDevelopment.DTOs;
+using FleetPulse_BackEndDevelopment.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace FleetPulse.Controllers
+namespace FleetPulse_BackEndDevelopment.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class AccidentsController : ControllerBase
     {
-        private readonly FleetPulseDbContext _context;
+        private readonly IAccidentService _accidentService;
 
-        public AccidentsController(FleetPulseDbContext context)
+        public AccidentsController(IAccidentService accidentService)
         {
-            _context = context;
+            _accidentService = accidentService;
         }
+
         [HttpGet]
-        public async Task<IEnumerable<Accident>> Get()
+        public async Task<ActionResult<IEnumerable<AccidentDTO>>> GetAllAccidents()
         {
-            return await _context.Accidents.AsQueryable().ToListAsync();
+            var accidents = await _accidentService.GetAllAccidentsAsync();
+            return Ok(accidents);
         }
-        [HttpGet("{accidentid}")]
-        public async Task<IActionResult> Get(int accidentid)
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<AccidentDTO>> GetAccidentById(int id)
         {
-            if (accidentid < 1)
-                return BadRequest();
-
-
-            var Accident = await _context.Accidents.FirstOrDefaultAsync(m => m.AccidentId == accidentid);
-            if (Accident == null)
-                return NotFound();
-            return Ok(Accident);
-
-
+            var accident = await _accidentService.GetAccidentByIdAsync(id);
+            if (accident == null) return NotFound();
+            return Ok(accident);
         }
+
         [HttpPost]
-        public async Task<IActionResult> Post(Accident Accident)
+        public async Task<ActionResult<AccidentDTO>> CreateAccident([FromForm] AccidentDTO accidentCreateDto)
         {
-            _context.Add(Accident);
-            await _context.SaveChangesAsync();
-            return Ok();
+            var accident = await _accidentService.CreateAccidentAsync(accidentCreateDto);
+            return CreatedAtAction(nameof(GetAccidentById), new { id = accident.AccidentId }, accident);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Put(Accident AccidentData)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<AccidentDTO>> UpdateAccident(int id, AccidentDTO accidentDto)
         {
-            if (AccidentData == null || AccidentData.AccidentId == 0)
-                return BadRequest();
-
-            var Accident = await _context.Accidents.FindAsync(AccidentData.AccidentId);
-            if (Accident == null)
-                return NotFound();
-            Accident.DateTime = AccidentData.DateTime;
-            Accident.Venue = AccidentData.Venue;
-            Accident.Status = AccidentData.Status;
-            Accident.DriverInjuredStatus = AccidentData.DriverInjuredStatus;
-            Accident.HelperInjuredStatus = AccidentData.HelperInjuredStatus;
-            Accident.VehicleDamagedStatus = AccidentData.VehicleDamagedStatus;
-            Accident.Loss = AccidentData.Loss;
-            Accident.SpecialNotes = AccidentData.SpecialNotes;
-            Accident.Photos = AccidentData.Photos;
-            Accident.VehicleId = AccidentData.VehicleId;
-            await _context.SaveChangesAsync();
-            return Ok();
+            var updatedAccident = await _accidentService.UpdateAccidentAsync(id, accidentDto);
+            if (updatedAccident == null) return NotFound();
+            return Ok(updatedAccident);
         }
-        [HttpDelete("{accidentid}")]
-        public async Task<IActionResult> Delete(int accidentid)
 
+        [HttpPut("{id}/deactivate")]
+        public async Task<ActionResult> DeactivateAccident(int id)
         {
-            if (accidentid < 1)
-                return BadRequest();
-            var Accident = await _context.Accidents.FindAsync(accidentid);
-            if (Accident == null)
-                return NotFound();
-            _context.Accidents.Remove(Accident);
-            await _context.SaveChangesAsync();
-            return Ok();
+            var success = await _accidentService.DeactivateAccidentAsync(id);
+            if (!success) return NotFound();
+            return NoContent();
+        }
 
+        [HttpPut("{id}/activate")]
+        public async Task<ActionResult> ActivateAccident(int id)
+        {
+            var success = await _accidentService.ActivateAccidentAsync(id);
+            if (!success) return NotFound();
+            return NoContent();
         }
     }
 }
-

@@ -1,5 +1,7 @@
 using FleetPulse_BackEndDevelopment.DTOs;
 using FleetPulse_BackEndDevelopment.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FleetPulse_BackEndDevelopment.Services.Interfaces
 {
@@ -14,8 +16,7 @@ namespace FleetPulse_BackEndDevelopment.Services.Interfaces
         Task DeleteAllNotificationsAsync();
         Task<bool> SendNotificationAsynctoAdmin(FCMNotificationDTO notification);
         Task SendNotificationAsync(string token, string title, string message, Dictionary<string, string> dataPayload);
-        bool DoesEmailExist(string email); // Add this method to check email existence
-        string GetUsernameByEmail(string email); // New method to get username by email
-
+        bool DoesEmailExist(string email); // Check if email exists in the system
+        string GetUsernameByEmail(string email); // Retrieve username by email
     }
 }

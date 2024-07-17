@@ -4,9 +4,11 @@ using FleetPulse_BackEndDevelopment.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
+    [Authorize(Roles = "Admin,Staff")]
     [Route("api/[controller]")]
     [ApiController]
     public class VehicleTypeController : ControllerBase

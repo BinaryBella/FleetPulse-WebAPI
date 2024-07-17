@@ -1,4 +1,4 @@
-﻿using FleetPulse_BackEndDevelopment.Models;
+﻿using FleetPulse_BackEndDevelopment.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,13 +6,13 @@ namespace FleetPulse_BackEndDevelopment.Services.Interfaces
 {
     public interface IHelperService
     {
-        Task<IEnumerable<User>> GetAllHelpersAsync();
-        Task<User> GetHelperByIdAsync(int id);
-        Task<bool> IsHelperExist(int id);
-        bool DoesHelperExist(string NIC);
-        Task<User> AddHelperAsync(User driver);
-        Task<bool> UpdateHelperAsync(User driver);
-        Task DeactivateHelperAsync(int driverId);
-        Task ActivateHelperAsync(int id);
+        Task<IEnumerable<HelperDTO>> GetAllHelpersAsync();
+        Task<HelperDTO> GetHelperByIdAsync(int id);
+        Task<HelperDTO> CreateHelperAsync(HelperDTO helperDto);
+        Task<HelperDTO> UpdateHelperAsync(int id, HelperDTO helperDto);
+        Task<bool> DeactivateHelperAsync(int id);
+        Task<bool> ActivateHelperAsync(int id);
+        Task<bool> DoesEmailExistAsync(string email);
+        Task<bool> DoesUsernameExistAsync(string username);
     }
 }

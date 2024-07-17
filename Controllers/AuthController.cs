@@ -1,13 +1,12 @@
-using FleetPulse_BackEndDevelopment.Configuration;
-using FleetPulse_BackEndDevelopment.Data;
+using System.Security.Claims;
 using FleetPulse_BackEndDevelopment.Data.DTO;
+using FleetPulse_BackEndDevelopment.DTOs;
 using FleetPulse_BackEndDevelopment.Models;
 using FleetPulse_BackEndDevelopment.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
@@ -17,33 +16,28 @@ namespace FleetPulse_BackEndDevelopment.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IMailService _mailService;
+        private readonly IJwtService jwtService;
         private readonly IEmailService _emailService;
         private readonly IVerificationCodeService _verificationCodeService;
-        private readonly FleetPulseDbContext _context;
-        private readonly IConfiguration _configuration;
         private readonly ILogger<AuthController> _logger;
-        private readonly MailSettings _mailSettings;
 
         public AuthController(
             IAuthService authService,
             IMailService mailService,
+            IJwtService jwtService,
             IEmailService emailService,
             IVerificationCodeService verificationCodeService,
-            FleetPulseDbContext context,
-            IConfiguration configuration,
-            ILogger<AuthController> logger,
-            IOptions<MailSettings> mailSettings)
+            ILogger<AuthController> logger)
         {
             _authService = authService;
             _mailService = mailService;
             _emailService = emailService;
             _verificationCodeService = verificationCodeService;
-            _context = context;
-            _configuration = configuration;
+            this.jwtService = jwtService;
             _logger = logger;
-            _mailSettings = mailSettings.Value;
         }
         
+        [Authorize(Roles = "Admin")]
         [HttpGet("count")]
         public async Task<ActionResult<int>> GetUserCount()
         {
@@ -51,6 +45,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(count);
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<ApiResponse>> Login([FromBody] LoginDTO userModel)
         {
@@ -94,8 +89,17 @@ namespace FleetPulse_BackEndDevelopment.Controllers
 
                     if (validJobTitles.Contains(user.JobTitle))
                     {
-                        var accessToken = await _authService.GenerateJwtToken(user.UserName, user.JobTitle);
-                        var refreshToken = await _authService.GenerateRefreshToken(user.UserId);
+                        var accessToken = jwtService.GenerateAccessToken(user.UserName, new []{user.JobTitle});
+                        var refreshToken = jwtService.GenerateRefreshToken();
+                        
+                        var refreshTokenModel = new RefreshToken
+                        {
+                            Token = refreshToken,
+                            Expires = DateTime.UtcNow.AddMinutes(3),
+                            IsRevoked = false
+                        };
+                        
+                        await jwtService.AddRefreshTokenAsync(refreshTokenModel);
 
                         response.Data = new
                         {
@@ -126,6 +130,31 @@ namespace FleetPulse_BackEndDevelopment.Controllers
                 response.Error = "An internal error occurred";
                 return StatusCode(500, response);
             }
+        }
+        
+        [Authorize]
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken(RefreshTokenDTO model)
+        {
+            var refreshTokenData = await jwtService.GetRefreshTokenData(model.RefreshToken);
+            if (refreshTokenData == null) return BadRequest("Invalid refresh token");
+            
+            var isValidRefreshToken = refreshTokenData.IsRevoked == false && refreshTokenData.Expires > DateTime.UtcNow;
+            if (!isValidRefreshToken)
+            {
+                await jwtService.DeleteRefreshTokenAsync(model.RefreshToken);
+                return BadRequest("Refresh token expired");
+            }
+            
+            var principal = jwtService.GetPrincipalFromExpiredToken(model.AccessToken);
+            var userName = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var roles = principal.FindAll(ClaimTypes.Role).Select(c => c.Value).ToArray();
+
+            if (userName == null) return BadRequest("Invalid access token");
+
+            var newAccessToken = jwtService.GenerateAccessToken(userName, roles);
+
+            return Ok(new { AccessToken = newAccessToken, RefreshToken = model.RefreshToken });
         }
 
         [AllowAnonymous]
@@ -256,7 +285,8 @@ namespace FleetPulse_BackEndDevelopment.Controllers
                 return StatusCode(500, "An error occurred while processing your request");
             }
         }
-
+        
+        [Authorize(Roles = "Admin")]
         [HttpPost("reset-password-driver")]
         public async Task<IActionResult> ResetDriverPassword([FromBody] ResetDriverPasswordRequest request)
         {
@@ -314,7 +344,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPost("change-password")]
         public IActionResult ChangePassword([FromBody] ChangePasswordDTO model)
         {
@@ -369,6 +399,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPut("UpdateUser")]
         public async Task<IActionResult> UpdateUser([FromBody] StaffDTO staff)
         {
@@ -387,16 +418,8 @@ namespace FleetPulse_BackEndDevelopment.Controllers
                 oldUser.DateOfBirth = staff.DateOfBirth;
                 oldUser.PhoneNo = staff.PhoneNo;
                 oldUser.EmailAddress = staff.EmailAddress;
-
-                if (string.IsNullOrEmpty(staff.ProfilePicture))
-                {
-                    oldUser.ProfilePicture = null;
-                }
-                else
-                {
-                    oldUser.ProfilePicture = Convert.FromBase64String(staff.ProfilePicture);
-                }
-
+                oldUser.ProfilePicture = staff.ProfilePicture;
+                
                 var result = await _authService.UpdateUserAsync(oldUser);
 
                 if (result)
@@ -415,6 +438,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin,Staff")]
         [HttpGet("userProfile")]
         public async Task<ActionResult<StaffDTO>> GetUserByUsernameAsync(string username)
         {
@@ -434,12 +458,13 @@ namespace FleetPulse_BackEndDevelopment.Controllers
                 EmailAddress = user.EmailAddress,
                 PhoneNo = user.PhoneNo,
                 NIC = user.NIC,
-                ProfilePicture = profilePictureBase64
+                ProfilePicture = user.ProfilePicture
             };
 
             return Ok(staffDTO);
         }
 
+        [Authorize]
         [HttpPut("UpdateDriverProfilePicture")]
         public async Task<IActionResult> UpdateDriverProfilePicture([FromBody] ProfilePictureDTO profilePictureDTO)
         {
@@ -463,7 +488,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
                 return StatusCode(500, $"An error occurred while updating the profile picture: {ex.Message}");
             }
         }
-
+        
         [HttpPost("logout")]
         public IActionResult Logout()
         {
