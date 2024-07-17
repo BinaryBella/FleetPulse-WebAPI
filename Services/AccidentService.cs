@@ -1,15 +1,11 @@
 ﻿using AutoMapper;
-using FleetPulse_BackEndDevelopment.DTOs;
 using FleetPulse_BackEndDevelopment.Models;
 using Microsoft.EntityFrameworkCore;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using FleetPulse_BackEndDevelopment.Data;
+using FleetPulse_BackEndDevelopment.DTOs;
 
 namespace FleetPulse_BackEndDevelopment.Services
 {
@@ -37,11 +33,10 @@ namespace FleetPulse_BackEndDevelopment.Services
             return _mapper.Map<AccidentDTO>(accident);
         }
 
-        public async Task<AccidentDTO> CreateAccidentAsync(AccidentDTO accidentCreateDto)
+        public async Task<AccidentDTO> CreateAccidentAsync(AccidentCreateDTO accidentCreateDto)
         {
             var accident = _mapper.Map<Accident>(accidentCreateDto);
 
-            // Handle photo compression and conversion
             if (accidentCreateDto.Photos != null && accidentCreateDto.Photos.Count > 0)
             {
                 List<byte[]> photoBytesList = new List<byte[]>();
@@ -52,16 +47,15 @@ namespace FleetPulse_BackEndDevelopment.Services
                     {
                         using var stream = formFile.OpenReadStream();
                         using var image = Image.Load(stream);
-                        
-                        // Compress image
+
                         image.Mutate(x => x.Resize(new ResizeOptions
                         {
                             Mode = ResizeMode.Max,
-                            Size = new Size(800, 800) // Resize to a reasonable size
+                            Size = new Size(800, 800)
                         }));
 
                         using var memoryStream = new MemoryStream();
-                        image.Save(memoryStream, new JpegEncoder { Quality = 75 }); // Compress to 75% quality
+                        image.Save(memoryStream, new JpegEncoder { Quality = 75 });
                         photoBytesList.Add(memoryStream.ToArray());
                     }
                 }

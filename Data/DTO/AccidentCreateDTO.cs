@@ -1,10 +1,13 @@
-﻿namespace FleetPulse_BackEndDevelopment.DTOs
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+
+namespace FleetPulse_BackEndDevelopment.DTOs
 {
-    public class AccidentDTO
+    public class AccidentCreateDTO
     {
-        public int AccidentId { get; set; }
         public string Venue { get; set; }
         public DateTime DateTime { get; set; }
+        public List<IFormFile> Photos { get; set; }
         public string SpecialNotes { get; set; }
         public decimal Loss { get; set; }
         public bool DriverInjuredStatus { get; set; }

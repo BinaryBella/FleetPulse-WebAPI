@@ -31,7 +31,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<AccidentDTO>> CreateAccident([FromForm] AccidentDTO accidentCreateDto)
+        public async Task<ActionResult<AccidentDTO>> CreateAccident([FromForm] AccidentCreateDTO accidentCreateDto)
         {
             var accident = await _accidentService.CreateAccidentAsync(accidentCreateDto);
             return CreatedAtAction(nameof(GetAccidentById), new { id = accident.AccidentId }, accident);
