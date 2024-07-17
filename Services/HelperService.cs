@@ -163,5 +163,11 @@ namespace FleetPulse_BackEndDevelopment.Services
         {
             return await _context.Users.AnyAsync(u => u.UserName == username);
         }
+        
+        public async Task<int> GetHelperCountAsync()
+        {
+            return await _context.Users.CountAsync();
+        }
+
     }
 }

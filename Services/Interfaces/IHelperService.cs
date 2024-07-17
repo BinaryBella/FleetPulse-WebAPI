@@ -14,5 +14,6 @@ namespace FleetPulse_BackEndDevelopment.Services.Interfaces
         Task<bool> ActivateHelperAsync(int id);
         Task<bool> DoesEmailExistAsync(string email);
         Task<bool> DoesUsernameExistAsync(string username);
+        Task<int> GetHelperCountAsync();
     }
 }

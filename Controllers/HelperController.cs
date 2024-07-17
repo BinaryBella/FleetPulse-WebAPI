@@ -20,6 +20,20 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             _helperService = helperService ?? throw new ArgumentNullException(nameof(helperService));
         }
 
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetHelpersCount()
+        {
+            try
+            {
+                var count = await _helperService.GetHelperCountAsync();
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Failed to retrieve helpers count: {ex.Message}");
+            }
+        }
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<HelperDTO>>> GetAllHelpers()
         {
