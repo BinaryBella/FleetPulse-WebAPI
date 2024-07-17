@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class DriverController : ControllerBase
@@ -59,7 +61,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(updatedDriver);
         }
 
-        [HttpDelete("{id}")]
+        [HttpPut("{id}/deactivate")]
         public async Task<IActionResult> DeactivateDriver(int id)
         {
             var success = await _driverService.DeactivateDriverAsync(id);

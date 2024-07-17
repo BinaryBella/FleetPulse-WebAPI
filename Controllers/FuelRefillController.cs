@@ -72,7 +72,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(updatedFuelRefill);
         }
         
-        [HttpPost("activate/{id}")]
+        [HttpPut("activate/{id}")]
         public async Task<IActionResult> ActivateFuelRefill(int id)
         {
             var result = await _fuelRefillService.ActivateFuelRefillAsync(id);
@@ -82,7 +82,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok();
         }
 
-        [HttpPost("deactivate/{id}")]
+        [HttpPut("deactivate/{id}")]
         public async Task<IActionResult> DeactivateFuelRefill(int id)
         {
             var result = await _fuelRefillService.DeactivateFuelRefillAsync(id);

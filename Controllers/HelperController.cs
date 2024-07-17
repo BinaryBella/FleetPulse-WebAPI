@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class HelperController : ControllerBase
@@ -58,8 +60,8 @@ namespace FleetPulse_BackEndDevelopment.Controllers
 
             return Ok(updatedHelper);
         }
-
-        [HttpDelete("{id}")]
+        
+        [HttpPut("{id}/deactivate")]
         public async Task<IActionResult> DeactivateHelper(int id)
         {
             var success = await _helperService.DeactivateHelperAsync(id);
@@ -68,6 +70,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
 
             return NoContent();
         }
+
 
         [HttpPut("{id}/activate")]
         public async Task<IActionResult> ActivateHelper(int id)

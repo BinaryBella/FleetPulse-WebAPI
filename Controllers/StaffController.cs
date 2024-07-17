@@ -1,12 +1,11 @@
 ﻿using FleetPulse_BackEndDevelopment.DTOs;
 using FleetPulse_BackEndDevelopment.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class StaffController : ControllerBase
@@ -59,7 +58,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(updatedStaff);
         }
 
-        [HttpDelete("{id}")]
+        [HttpPut("{id}/deactivate")]
         public async Task<IActionResult> DeactivateStaff(int id)
         {
             var success = await _staffService.DeactivateStaffAsync(id);

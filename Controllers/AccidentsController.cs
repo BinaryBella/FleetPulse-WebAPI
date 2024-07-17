@@ -1,9 +1,11 @@
 ﻿using FleetPulse_BackEndDevelopment.DTOs;
 using FleetPulse_BackEndDevelopment.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class AccidentsController : ControllerBase
