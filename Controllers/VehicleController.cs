@@ -1,164 +1,74 @@
-﻿using FleetPulse_BackEndDevelopment.Data.DTO;
-using FleetPulse_BackEndDevelopment.Models;
-using FleetPulse_BackEndDevelopment.Services.Interfaces;
-using Microsoft.AspNetCore.Authorization;
+﻿using FleetPulse_BackEndDevelopment.DTOs;
+using FleetPulse_BackEndDevelopment.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
     [Authorize(Roles = "Admin,Staff")]
     [Route("api/[controller]")]
     [ApiController]
-    public class VehicleController : ControllerBase
+    public class VehiclesController : ControllerBase
     {
         private readonly IVehicleService _vehicleService;
 
-        public VehicleController(IVehicleService vehicleService)
+        public VehiclesController(IVehicleService vehicleService)
         {
             _vehicleService = vehicleService;
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAllVehicles()
+        public async Task<IActionResult> GetAllVehicles()
         {
-            var vehicles = await _vehicleService.GetAllVehiclesAsyncDisplay();
+            var vehicles = await _vehicleService.GetAllVehiclesAsync();
             return Ok(vehicles);
         }
 
-        [HttpGet("count")]
-        public async Task<ActionResult<int>> GetVehicleCount()
-        {
-            var count = await _vehicleService.GetVehicleCountAsync();
-            return Ok(count);
-        }
-        
         [HttpGet("{id}")]
-        public async Task<ActionResult<Vehicle>> GetVehicleById(int id)
+        public async Task<IActionResult> GetVehicleById(int id)
         {
             var vehicle = await _vehicleService.GetVehicleByIdAsync(id);
-            if (vehicle == null)
-                return NotFound();
+            if (vehicle == null) return NotFound();
 
             return Ok(vehicle);
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddVehicleAsync([FromBody] VehicleDTO vehicleDto)
+        public async Task<IActionResult> AddVehicle([FromBody] VehicleDTO vehicleDto)
         {
-            var response = new ApiResponse();
-            try
-            {
-                var vehicleExists = _vehicleService.DoesVehicleExists(vehicleDto.VehicleRegistrationNo);
-                if (vehicleExists)
-                {
-                    response.Message = "Vehicle already exists";
-                    return new JsonResult(response);
-                }
+            if (!await _vehicleService.IsRegistrationNoUniqueAsync(vehicleDto.VehicleRegistrationNo))
+                return BadRequest("Vehicle registration number must be unique.");
 
-                var vehicle = new Vehicle
-                {
-                    VehicleRegistrationNo = vehicleDto.VehicleRegistrationNo,
-                    LicenseNo = vehicleDto.LicenseNo,
-                    LicenseExpireDate = vehicleDto.LicenseExpireDate,
-                    VehicleColor = vehicleDto.VehicleColor,
-                    Status = vehicleDto.Status,
-                    VehicleTypeId = vehicleDto.VehicleTypeId,
-                    ManufactureId = vehicleDto.ManufactureId,
-                    VehicleMaintenances = vehicleDto.VehicleMaintenanceIds?.Select(id => new VehicleMaintenance { MaintenanceId = id }).ToList(),
-                    FuelRefills = vehicleDto.FuelRefillIds?.Select(id => new FuelRefill { FuelRefillId = id }).ToList()
-                };
-
-                var addedVehicle = await _vehicleService.AddVehicleAsync(vehicle);
-
-                if (addedVehicle != null)
-                {
-                    response.Status = true;
-                    response.Message = "Added Successfully";
-                    return new JsonResult(response);
-                }
-                else
-                {
-                    response.Status = false;
-                    response.Message = "Failed to add Vehicle";
-                }
-            }
-            catch (Exception ex)
-            {
-                response.Status = false;
-                response.Message = $"An error occurred: {ex.Message}";
-            }
-
-            return new JsonResult(response);
+            var addedVehicle = await _vehicleService.AddVehicleAsync(vehicleDto);
+            return CreatedAtAction(nameof(GetVehicleById), new { id = addedVehicle.VehicleId }, addedVehicle);
         }
 
-        [HttpPut("UpdateVehicle")]
-        public async Task<IActionResult> UpdateVehicle([FromBody] VehicleDTO vehicleDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateVehicle(int id, [FromBody] VehicleDTO vehicleDto)
         {
-            try
-            {
-                var existingVehicle = await _vehicleService.IsVehicleExist(vehicleDto.VehicleId);
+            var updatedVehicle = await _vehicleService.UpdateVehicleAsync(id, vehicleDto);
+            if (updatedVehicle == null) return NotFound();
 
-                if (!existingVehicle)
-                {
-                    return NotFound("Vehicle with Id not found");
-                }
-
-                var vehicle = new Vehicle
-                {
-                    VehicleId = vehicleDto.VehicleId,
-                    VehicleRegistrationNo = vehicleDto.VehicleRegistrationNo,
-                    LicenseNo = vehicleDto.LicenseNo,
-                    LicenseExpireDate = vehicleDto.LicenseExpireDate,
-                    VehicleColor = vehicleDto.VehicleColor,
-                    Status = vehicleDto.Status,
-                    VehicleTypeId = vehicleDto.VehicleTypeId,
-                    ManufactureId = vehicleDto.ManufactureId,
-                    VehicleMaintenances = vehicleDto.VehicleMaintenanceIds?.Select(id => new VehicleMaintenance { MaintenanceId = id }).ToList(),
-                    FuelRefills = vehicleDto.FuelRefillIds?.Select(id => new FuelRefill { FuelRefillId = id }).ToList()
-                };
-
-                var result = await _vehicleService.UpdateVehicleAsync(vehicle);
-                if (result)
-                {
-                    return Ok("Vehicle updated successfully.");
-                }
-                else
-                {
-                    return StatusCode(500, "Failed to update Vehicle.");
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while updating the vehicle: {ex.Message}");
-            }
-        }
-
-        [HttpPut("{id}/deactivate")]
-        public async Task<IActionResult> DeactivateVehicle(int id)
-        {
-            try
-            {
-                await _vehicleService.DeactivateVehicleAsync(id);
-                return Ok("Vehicle deactivated successfully.");
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return Ok(updatedVehicle);
         }
 
         [HttpPut("{id}/activate")]
         public async Task<IActionResult> ActivateVehicle(int id)
         {
-            try
-            {
-                await _vehicleService.ActivateVehicleAsync(id);
-                return Ok("Vehicle activated successfully.");
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var result = await _vehicleService.ActivateVehicleAsync(id);
+            if (!result) return NotFound();
+
+            return NoContent();
+        }
+
+        [HttpPut("{id}/deactivate")]
+        public async Task<IActionResult> DeactivateVehicle(int id)
+        {
+            var result = await _vehicleService.DeactivateVehicleAsync(id);
+            if (!result) return NotFound();
+
+            return NoContent();
         }
     }
 }

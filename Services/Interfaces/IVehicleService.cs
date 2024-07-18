@@ -1,20 +1,17 @@
-﻿using FleetPulse_BackEndDevelopment.Models;
+﻿using FleetPulse_BackEndDevelopment.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace FleetPulse_BackEndDevelopment.Services.Interfaces
+namespace FleetPulse_BackEndDevelopment.Services
 {
     public interface IVehicleService
     {
-        Task<IEnumerable<Vehicle?>> GetAllVehiclesAsync();
-        Task<object> GetAllVehiclesAsyncDisplay();
-        Task<Vehicle?> GetVehicleByIdAsync(int id);
-        Task<bool> IsVehicleExist(int id);
-        bool DoesVehicleExists(string vehicleRegistrationNo);
-        Task<Vehicle?> AddVehicleAsync(Vehicle? vehicle);
-        Task<bool> UpdateVehicleAsync(Vehicle vehicle);
-        Task DeactivateVehicleAsync(int vehicleId);
-        Task ActivateVehicleAsync(int id);
-        Task<int> GetVehicleCountAsync();
+        Task<IEnumerable<VehicleDTO>> GetAllVehiclesAsync();
+        Task<VehicleDTO> GetVehicleByIdAsync(int vehicleId);
+        Task<VehicleDTO> AddVehicleAsync(VehicleDTO vehicleDto);
+        Task<VehicleDTO> UpdateVehicleAsync(int vehicleId, VehicleDTO vehicleDto);
+        Task<bool> ActivateVehicleAsync(int vehicleId);
+        Task<bool> DeactivateVehicleAsync(int vehicleId);
+        Task<bool> IsRegistrationNoUniqueAsync(string vehicleRegistrationNo);
     }
 }

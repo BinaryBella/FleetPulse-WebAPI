@@ -51,7 +51,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
                     Status = vehicleMaintenance.Status,
                     SpecialNotes = vehicleMaintenance.SpecialNotes,
                     VehicleId = vehicleMaintenance.VehicleId,
-                    VehicleMaintenanceTypeId = vehicleMaintenance.VehicleMaintenanceTypeId,
+                    VehicleMaintenanceTypeId = vehicleMaintenance.VehicleMaintenanceTypeId, // Assign directly as int
                 };
 
                 var addedMaintenance = await _maintenanceService.AddVehicleMaintenanceAsync(maintenance);

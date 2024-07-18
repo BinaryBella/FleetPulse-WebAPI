@@ -1,17 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FleetPulse_BackEndDevelopment.Models
 {
     public class Vehicle
     {
-        
         [Key]
         public int VehicleId { get; set; }
         public string VehicleRegistrationNo { get; set; }
-        public string? LicenseNo { get; set; }
+        public string LicenseNo { get; set; }
         public DateTime LicenseExpireDate { get; set; }
         public string? VehicleColor { get; set; }
-        public string? Status { get; set; }
+        public string FuelType { get; set; }
+        public bool Status { get; set; }
         public int VehicleTypeId { get; set; }
         public VehicleType Type { get; set; }
         public int ManufactureId { get; set; }

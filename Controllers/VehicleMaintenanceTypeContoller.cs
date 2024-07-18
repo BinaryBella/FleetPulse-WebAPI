@@ -67,7 +67,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
                 if (addedMaintenanceType != null)
                 {
                     response.Status = true;
-                    response.Message = "Added Successfully";
+                    response.Message = "Vehicle Maintenance Type Added Successfully";
                     return new JsonResult(response);
                 }
                 else
