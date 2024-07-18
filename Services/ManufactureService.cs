@@ -56,43 +56,6 @@ namespace FleetPulse_BackEndDevelopment.Services
             return false;
         }
 
-        /* public async Task DeactivateManufactureAsync(int ManufactureId)
-         {
-             var manufacture = await _context.Manufactures.FindAsync(ManufactureId);
-
-             if (manufacture == null)
-             {
-                 throw new InvalidOperationException("Manufacturer not found.");
-             }
-
-             if (ManufactureIsActive(manufacture))
-             {
-                 throw new InvalidOperationException("Manufacturer is active and associated with manufacture records. Cannot deactivate.");
-             }
-
-             manufacture.Status = false;
-             await _context.SaveChangesAsync();
-         }
-
-         private bool ManufactureIsActive(Manufacture manufacture)
-         {
-             return _context.Manufactures.Any(vt => vt.ManufactureId == manufacture.ManufactureId);
-         }
-
-         public async Task ActivateManufactureAsync(int id)
-         {
-             var manufacture = await _context.Manufactures.FindAsync(id);
-             if (manufacture == null)
-             {
-                 throw new KeyNotFoundException("Manufacturer not found.");
-             }
-
-             manufacture.Status = true;
-             await _context.SaveChangesAsync();
-         }
-     }
- } */
-
         public async Task ActivateManufactureAsync(int ManufactureId)
         {
             var manufacture = await _context.Users.FindAsync(ManufactureId);

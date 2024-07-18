@@ -68,7 +68,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     // Add Swagger
     services.AddSwaggerGen(options =>
     {
-        options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Your API", Version = "v1" });
+        options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "FleetPulse API", Version = "v1" });
         options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
         {
             In = Microsoft.OpenApi.Models.ParameterLocation.Header,
