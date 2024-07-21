@@ -16,6 +16,13 @@ namespace FleetPulse_BackEndDevelopment.Controllers
         {
             _accidentService = accidentService;
         }
+        
+        [HttpGet("latest-month/count")]
+        public ActionResult<int> GetLatestMonthAccidentCount()
+        {
+            var count = _accidentService.GetLatestMonthAccidentCount();
+            return Ok(count);
+        }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AccidentDTO>>> GetAllAccidents()

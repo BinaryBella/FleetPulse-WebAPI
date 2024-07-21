@@ -1,7 +1,6 @@
 ﻿using FleetPulse_BackEndDevelopment.DTOs;
 using FleetPulse_BackEndDevelopment.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
@@ -34,6 +33,21 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(vehicle);
         }
 
+        
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetVehiclesCount()
+        {
+            try
+            {
+                var count = await _vehicleService.GetVehicleCountAsync();
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Failed to retrieve Vehicles count: {ex.Message}");
+            }
+        }
+        
         [HttpPost]
         public async Task<IActionResult> AddVehicle([FromBody] VehicleDTO vehicleDto)
         {

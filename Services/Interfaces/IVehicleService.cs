@@ -13,5 +13,6 @@ namespace FleetPulse_BackEndDevelopment.Services
         Task<bool> ActivateVehicleAsync(int vehicleId);
         Task<bool> DeactivateVehicleAsync(int vehicleId);
         Task<bool> IsRegistrationNoUniqueAsync(string vehicleRegistrationNo);
+        Task<int> GetVehicleCountAsync();
     }
 }

@@ -33,6 +33,16 @@ namespace FleetPulse_BackEndDevelopment.Services
             return _mapper.Map<AccidentDTO>(accident);
         }
 
+        public int GetLatestMonthAccidentCount()
+        {
+            var currentDate = DateTime.Now;
+            var lastMonthDate = currentDate.AddMonths(-1);
+
+            return _context.Accidents
+                .Where(a => a.DateTime >= lastMonthDate && a.DateTime <= currentDate)
+                .Count();
+        }
+        
         public async Task<AccidentDTO> CreateAccidentAsync(AccidentCreateDTO accidentCreateDto)
         {
             var accident = _mapper.Map<Accident>(accidentCreateDto);

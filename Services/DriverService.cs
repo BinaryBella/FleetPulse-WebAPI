@@ -170,7 +170,7 @@ namespace FleetPulse_BackEndDevelopment.Services
         
         public async Task<int> GetDriverCountAsync()
         {
-            return await _context.Users.CountAsync();
+            return _context.Users.Count(u => u.JobTitle == "Driver");
         }
     }
 }

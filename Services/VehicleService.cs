@@ -153,5 +153,10 @@ namespace FleetPulse_BackEndDevelopment.Services
         {
             return !await _context.Vehicles.AnyAsync(v => v.VehicleRegistrationNo == vehicleRegistrationNo);
         }
+        
+        public async Task<int> GetVehicleCountAsync()
+        {
+            return await _context.Vehicles.CountAsync();
+        }
     }
 }

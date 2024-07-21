@@ -21,7 +21,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
         }
 
         [HttpGet("count")]
-        public async Task<ActionResult<int>> GetHelpersCount()
+        public async Task<ActionResult<int>> GetDriverCount()
         {
             try
             {

@@ -10,5 +10,6 @@ namespace FleetPulse_BackEndDevelopment.Services
         Task<AccidentDTO> UpdateAccidentAsync(int id, AccidentDTO accidentDto);
         Task<bool> DeactivateAccidentAsync(int id);
         Task<bool> ActivateAccidentAsync(int id);
+        int GetLatestMonthAccidentCount();
     }
 }
