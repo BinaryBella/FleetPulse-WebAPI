@@ -1,6 +1,5 @@
 ﻿using FleetPulse_BackEndDevelopment.Data.Config;
 using FleetPulse_BackEndDevelopment.Models;
-using FleetPulse_BackEndDevelopment.Models.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace FleetPulse_BackEndDevelopment.Data
@@ -24,9 +23,7 @@ namespace FleetPulse_BackEndDevelopment.Data
         public DbSet<VehicleMaintenanceType> VehicleMaintenanceTypes { get; set; }
         public DbSet<VehicleMaintenanceConfiguration> VehicleMaintenanceConfigurations { get; set; }
         public DbSet<TripUser> TripUsers { get; set; }
-        public DbSet<AccidentUser> AccidentUsers { get; set; }
         public DbSet<FuelRefillUser> FuelRefillUsers { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,14 +34,12 @@ namespace FleetPulse_BackEndDevelopment.Data
             modelBuilder.ApplyConfiguration(new FuelRefillConfig());
             modelBuilder.ApplyConfiguration(new VehicleConfig());
             modelBuilder.ApplyConfiguration(new AccidentConfig());
-            modelBuilder.ApplyConfiguration(new AccidentUserConfig());
             modelBuilder.ApplyConfiguration(new VehicleMaintenanceConfig());
             modelBuilder.ApplyConfiguration(new VehicleMaintenanceTypeConfig());
             modelBuilder.ApplyConfiguration(new VerificationCodeConfig());
             modelBuilder.ApplyConfiguration(new FCMNotificationConfig());
             modelBuilder.ApplyConfiguration(new TripConfig());
             modelBuilder.ApplyConfiguration(new TripUserConfig());
-            modelBuilder.ApplyConfiguration(new AccidentUserConfig());
             modelBuilder.ApplyConfiguration(new FuelRefillUserConfig());
             modelBuilder.ApplyConfiguration(new UserConfig()); 
         }
