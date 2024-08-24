@@ -15,6 +15,7 @@ namespace FleetPulse_BackEndDevelopment.Models
         public bool Status { get; set; }
         public int VehicleId { get; set; }
         public Vehicle Vehicle { get; set; }
-        public ICollection<TripUser> TripUsers { get; set; } = new List<TripUser>();
+        public int UserId { get; set; }
+        public User User { get; set; }
     }
 }

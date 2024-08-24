@@ -58,6 +58,7 @@ namespace FleetPulse_BackEndDevelopment.Services
                 return false;
             }
         }
+        
         public async Task DeactivateVehicleTypeAsync(int vehicleTypeId)
         {
             var vehicleType = await _context.VehicleTypes.FindAsync(vehicleTypeId);

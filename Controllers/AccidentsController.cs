@@ -25,9 +25,9 @@ namespace FleetPulse_BackEndDevelopment.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AccidentDTO>>> GetAllAccidents()
+        public async Task<ActionResult<IEnumerable<AccidentDTO>>> GetAccidents()
         {
-            var accidents = await _accidentService.GetAllAccidentsAsync();
+            var accidents = await _accidentService.GetAllAccidentsAsync();  // Use service method
             return Ok(accidents);
         }
 

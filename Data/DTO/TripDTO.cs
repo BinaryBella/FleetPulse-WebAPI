@@ -12,6 +12,8 @@ namespace FleetPulse_BackEndDevelopment.Data.DTO
         
         public float StartMeterValue { get; set; }
         public float EndMeterValue { get; set; }
+        public string VehicleRegistrationNo { get; set; }
+        public string NIC { get; set; }
         public bool Status { get; set; }
     }
 }

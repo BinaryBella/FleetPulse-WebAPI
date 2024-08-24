@@ -10,7 +10,8 @@
         public bool DriverInjuredStatus { get; set; }
         public bool HelperInjuredStatus { get; set; }
         public bool VehicleDamagedStatus { get; set; }
-        public int VehicleId { get; set; }
+        public string VehicleRegistrationNo { get; set; }
+        public string NIC { get; set; }
         public bool Status { get; set; }
     }
 }

@@ -177,29 +177,19 @@ namespace FleetPulse_BackEndDevelopment.Migrations
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.Property<int>("VehicleId")
                         .HasColumnType("int");
 
                     b.HasKey("TripId");
 
+                    b.HasIndex("UserId");
+
                     b.HasIndex("VehicleId");
 
                     b.ToTable("Trips", (string)null);
-                });
-
-            modelBuilder.Entity("FleetPulse_BackEndDevelopment.Models.TripUser", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TripId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "TripId");
-
-                    b.HasIndex("TripId");
-
-                    b.ToTable("TripUsers");
                 });
 
             modelBuilder.Entity("FleetPulse_BackEndDevelopment.Models.User", b =>
@@ -559,32 +549,21 @@ namespace FleetPulse_BackEndDevelopment.Migrations
 
             modelBuilder.Entity("FleetPulse_BackEndDevelopment.Models.Trip", b =>
                 {
+                    b.HasOne("FleetPulse_BackEndDevelopment.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("FleetPulse_BackEndDevelopment.Models.Vehicle", "Vehicle")
                         .WithMany("Trips")
                         .HasForeignKey("VehicleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Vehicle");
-                });
-
-            modelBuilder.Entity("FleetPulse_BackEndDevelopment.Models.TripUser", b =>
-                {
-                    b.HasOne("FleetPulse_BackEndDevelopment.Models.Trip", "Trip")
-                        .WithMany("TripUsers")
-                        .HasForeignKey("TripId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FleetPulse_BackEndDevelopment.Models.User", "User")
-                        .WithMany("TripUsers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Trip");
-
                     b.Navigation("User");
+
+                    b.Navigation("Vehicle");
                 });
 
             modelBuilder.Entity("FleetPulse_BackEndDevelopment.Models.Vehicle", b =>
@@ -668,18 +647,11 @@ namespace FleetPulse_BackEndDevelopment.Migrations
                     b.Navigation("Vehicles");
                 });
 
-            modelBuilder.Entity("FleetPulse_BackEndDevelopment.Models.Trip", b =>
-                {
-                    b.Navigation("TripUsers");
-                });
-
             modelBuilder.Entity("FleetPulse_BackEndDevelopment.Models.User", b =>
                 {
                     b.Navigation("FuelRefillUsers");
 
                     b.Navigation("FuelRefills");
-
-                    b.Navigation("TripUsers");
                 });
 
             modelBuilder.Entity("FleetPulse_BackEndDevelopment.Models.Vehicle", b =>

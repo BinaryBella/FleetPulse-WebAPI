@@ -19,7 +19,6 @@ namespace FleetPulse_BackEndDevelopment.Models
         public byte[]? ProfilePicture { get; set; }
         public bool Status { get; set; }
         public ICollection<FuelRefill> FuelRefills { get; set; }
-        public ICollection<TripUser> TripUsers { get; set; } = new List<TripUser>(); 
         public ICollection<FuelRefillUser> FuelRefillUsers { get; set; }
     }
 }

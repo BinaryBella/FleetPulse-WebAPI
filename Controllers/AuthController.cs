@@ -498,5 +498,22 @@ namespace FleetPulse_BackEndDevelopment.Controllers
 
             return RedirectToAction("Login");
         }
+        
+        [Authorize(Roles = "Admin,Staff")]
+        [HttpGet("drivers/nics")]
+        public async Task<ActionResult<List<string>>> GetAllDriverNICs()
+        {
+            try
+            {
+                var driverNICs = await _authService.GetAllDriverNICsAsync();
+                return Ok(driverNICs);
+            }
+            catch (Exception ex)
+            {
+                // Log error
+                _logger.LogError(ex, "Error fetching driver NICs: {Message}", ex.Message);
+                return StatusCode(500, "An error occurred while fetching driver NICs.");
+            }
+        }
     }
 }

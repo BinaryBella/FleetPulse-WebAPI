@@ -287,5 +287,14 @@ namespace FleetPulse_BackEndDevelopment.Services
                 throw; // Propagate the exception
             }
         }
+        
+        public async Task<List<string>> GetAllDriverNICsAsync()
+        {
+            // Only select NICs of users whose JobTitle is "Driver"
+            return await dataContext.Users
+                .Where(user => user.JobTitle == "Driver")
+                .Select(user => user.NIC)
+                .ToListAsync();
+        }
     }
 }

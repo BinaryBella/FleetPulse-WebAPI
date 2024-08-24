@@ -22,7 +22,6 @@ namespace FleetPulse_BackEndDevelopment.Data
         public DbSet<VehicleMaintenance> VehicleMaintenances { get; set; }
         public DbSet<VehicleMaintenanceType> VehicleMaintenanceTypes { get; set; }
         public DbSet<VehicleMaintenanceConfiguration> VehicleMaintenanceConfigurations { get; set; }
-        public DbSet<TripUser> TripUsers { get; set; }
         public DbSet<FuelRefillUser> FuelRefillUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -39,7 +38,6 @@ namespace FleetPulse_BackEndDevelopment.Data
             modelBuilder.ApplyConfiguration(new VerificationCodeConfig());
             modelBuilder.ApplyConfiguration(new FCMNotificationConfig());
             modelBuilder.ApplyConfiguration(new TripConfig());
-            modelBuilder.ApplyConfiguration(new TripUserConfig());
             modelBuilder.ApplyConfiguration(new FuelRefillUserConfig());
             modelBuilder.ApplyConfiguration(new UserConfig()); 
         }

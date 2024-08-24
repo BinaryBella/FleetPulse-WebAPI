@@ -1,4 +1,5 @@
 ﻿using FleetPulse_BackEndDevelopment.Data;
+using FleetPulse_BackEndDevelopment.Data.DTO;
 using FleetPulse_BackEndDevelopment.Models;
 using FleetPulse_BackEndDevelopment.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -20,9 +21,24 @@ namespace FleetPulse_BackEndDevelopment.Services
             return await _context.Trips.CountAsync(t => t.Date.Date == today);
         }
         
-        public async Task<IEnumerable<Trip>> GetAllTripsAsync()
+        public async Task<IEnumerable<TripDTO>> GetAllTripsAsync()
         {
-            return await _context.Trips.ToListAsync();
+            return await _context.Trips
+                .Include(t => t.Vehicle)
+                .Include(t => t.User)
+                .Select(t => new TripDTO
+                {
+                    TripId = t.TripId,
+                    Date = t.Date,
+                    StartTime = t.StartTime,
+                    EndTime = t.EndTime,
+                    StartMeterValue = t.StartMeterValue,
+                    EndMeterValue = t.EndMeterValue,
+                    VehicleRegistrationNo = t.Vehicle.VehicleRegistrationNo,
+                    NIC = t.User.NIC,
+                    Status = t.Status
+                })
+                .ToListAsync();
         }
 
         public async Task<Trip> GetTripByIdAsync(int id)
@@ -39,10 +55,37 @@ namespace FleetPulse_BackEndDevelopment.Services
             return _context.Trips.Any(x => x.TripId == tripId);
         }
 
-        public async Task<Trip> AddTripAsync(Trip trip)
+        public async Task<Trip> AddTripAsync(TripDTO tripDto)
         {
+            var vehicle = await _context.Vehicles
+                .FirstOrDefaultAsync(v => v.VehicleRegistrationNo == tripDto.VehicleRegistrationNo);
+            if (vehicle == null)
+            {
+                throw new Exception("Vehicle not found.");
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.NIC == tripDto.NIC);
+            if (user == null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            var trip = new Trip
+            {
+                Date = tripDto.Date,
+                StartTime = tripDto.StartTime,
+                EndTime = tripDto.EndTime,
+                StartMeterValue = tripDto.StartMeterValue,
+                EndMeterValue = tripDto.EndMeterValue,
+                Status = tripDto.Status,
+                VehicleId = vehicle.VehicleId,
+                UserId = user.UserId
+            };
+
             _context.Trips.Add(trip);
             await _context.SaveChangesAsync();
+
             return trip;
         }
 
@@ -60,39 +103,28 @@ namespace FleetPulse_BackEndDevelopment.Services
             }
         }
 
-        public async Task DeactivateTripAsync(int tripId)
+        public async Task<bool> ActivateTripAsync(int tripId)
         {
-            var trip = await _context.Trips.FindAsync(tripId);
-
-            if (trip == null)
-            {
-                throw new InvalidOperationException("Trip not found.");
-            }
-
-            if (TripIsActive(trip))
-            {
-                throw new InvalidOperationException("Trip is active and associated with trip records. Cannot deactivate.");
-            }
-
-            trip.Status = false;
-            await _context.SaveChangesAsync();
-        }
-
-        private bool TripIsActive(Trip trip)
-        {
-            return _context.Trips.Any(vt => vt.TripId == trip.TripId && vt.Status);
-        }
-
-        public async Task ActivateTripAsync(int id)
-        {
-            var trip = await _context.Trips.FindAsync(id);
-            if (trip == null)
-            {
-                throw new KeyNotFoundException("Trip not found.");
-            }
+            var trip = await _context.Vehicles.FindAsync(tripId);
+            if (trip == null) return false;
 
             trip.Status = true;
+            _context.Vehicles.Update(trip);
             await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> DeactivateTripAsync(int tripId)
+        {
+            var trip = await _context.Vehicles.FindAsync(tripId);
+            if (trip == null) return false;
+
+            trip.Status = false;
+            _context.Vehicles.Update(trip);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

@@ -44,21 +44,32 @@ namespace FleetPulse_BackEndDevelopment.Services
             return manufacture;
         }
 
-        public async Task<bool> UpdateManufactureAsync(Manufacture manufacture)
+        public async Task<bool> UpdateManufactureAsync(int manufactureId, Manufacture manufacture)
         {
-            var existingManufacture = await _context.Manufactures.FindAsync(manufacture.ManufactureId);
-            if (existingManufacture != null)
+            try
             {
+                // Find the existing manufacture by ID
+                var existingManufacture = await _context.Manufactures.FindAsync(manufactureId);
+
+                if (existingManufacture == null)
+                {
+                    return false;
+                }
+
+                // Update the existing manufacture's properties
                 _context.Entry(existingManufacture).CurrentValues.SetValues(manufacture);
                 await _context.SaveChangesAsync();
                 return true;
             }
-            return false;
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         public async Task ActivateManufactureAsync(int ManufactureId)
         {
-            var manufacture = await _context.Users.FindAsync(ManufactureId);
+            var manufacture = await _context.Manufactures.FindAsync(ManufactureId);
             if (manufacture == null)
             {
                 throw new KeyNotFoundException("Manufacture not found.");
@@ -70,7 +81,7 @@ namespace FleetPulse_BackEndDevelopment.Services
 
         public async Task DeactivateManufactureAsync(int ManufactureId)
         {
-            var user = await _context.Users.FindAsync(ManufactureId);
+            var user = await _context.Manufactures.FindAsync(ManufactureId);
 
             if (user == null)
             {

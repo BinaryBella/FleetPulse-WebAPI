@@ -22,10 +22,26 @@ namespace FleetPulse_BackEndDevelopment.Services
 
         public async Task<IEnumerable<AccidentDTO>> GetAllAccidentsAsync()
         {
-            var accidents = await _context.Accidents.Include(a => a.Vehicle).ToListAsync();
-            return _mapper.Map<IEnumerable<AccidentDTO>>(accidents);
+            return await _context.Accidents
+                .Include(a => a.Vehicle)
+                .Include(a => a.User)  // Include User to get NIC
+                .Select(a => new AccidentDTO
+                {
+                    AccidentId = a.AccidentId,
+                    Venue = a.Venue,
+                    DateTime = a.DateTime,
+                    SpecialNotes = a.SpecialNotes,
+                    Loss = a.Loss,
+                    DriverInjuredStatus = a.DriverInjuredStatus,
+                    HelperInjuredStatus = a.HelperInjuredStatus,
+                    VehicleDamagedStatus = a.VehicleDamagedStatus,
+                    VehicleRegistrationNo = a.Vehicle.VehicleRegistrationNo,
+                    NIC = a.User.NIC,  // Map NIC from User
+                    Status = a.Status
+                })
+                .ToListAsync();
         }
-
+        
         public async Task<AccidentDTO> GetAccidentByIdAsync(int id)
         {
             var accident = await _context.Accidents.Include(a => a.Vehicle).FirstOrDefaultAsync(a => a.AccidentId == id);

@@ -59,6 +59,8 @@ namespace FleetPulse_BackEndDevelopment.Services
                 return false;
             }
         }
+        
+        
         public async Task DeactivateMaintenanceTypeAsync(int maintenanceTypeId)
         {
             var maintenanceType = await _context.VehicleMaintenanceTypes.FindAsync(maintenanceTypeId);

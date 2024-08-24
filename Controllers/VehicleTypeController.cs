@@ -78,6 +78,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
 
             return new JsonResult(response);
         }
+        
         [HttpPut("UpdateVehicleType")]
         public async Task<IActionResult> UpdateVehicleType([FromBody] VehicleTypeDTO vehicleTypeDto)
         {

@@ -21,6 +21,7 @@ public interface IAuthService
     User GetByEmail(string email);
     Task<User> GetUserByEmailAsync(string email);
     Task<int> GetUserCountAsync();
+    Task<List<string>> GetAllDriverNICsAsync();
 
     // User Registration and Management
     bool ResetPassword(string email, string newPassword);

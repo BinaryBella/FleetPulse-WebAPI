@@ -19,12 +19,19 @@ namespace FleetPulse_BackEndDevelopment.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Trip>>> GetAllTrips()
+        public async Task<ActionResult<IEnumerable<TripDTO>>> GetAllTrips()
         {
-            var trips = await _tripService.GetAllTripsAsync();
-            return Ok(trips);
+            try
+            {
+                var trips = await _tripService.GetAllTripsAsync();
+                return Ok(trips);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
-
+        
         [HttpGet("dailycount")]
         public async Task<ActionResult<int>> GetDailyTripCount()
         {
@@ -43,52 +50,19 @@ namespace FleetPulse_BackEndDevelopment.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse>> AddTripAsync([FromBody] TripDTO tripDTO)
+        public async Task<IActionResult> AddTrip([FromBody] TripDTO tripDto)
         {
-            var response = new ApiResponse();
             try
             {
-                var trip = new Trip
-                {
-                    TripId = tripDTO.TripId,
-                    Date = tripDTO.Date,
-                    StartTime = tripDTO.StartTime,
-                    EndTime = tripDTO.EndTime,
-                    StartMeterValue = tripDTO.StartMeterValue,
-                    EndMeterValue = tripDTO.EndMeterValue,
-                    Status = tripDTO.Status
-                };
-
-                var tripExists = _tripService.DoesTripExists(trip.TripId);
-                if (tripExists)
-                {
-                    response.Message = "Trip already exists";
-                    return Conflict(response);
-                }
-
-                var addedTrip = await _tripService.AddTripAsync(trip);
-
-                if (addedTrip != null)
-                {
-                    response.Status = true;
-                    response.Message = "Added Successfully";
-                    return Ok(response);
-                }
-                else
-                {
-                    response.Status = false;
-                    response.Message = "Failed to add Trip";
-                    return BadRequest(response);
-                }
+                var trip = await _tripService.AddTripAsync(tripDto);
+                return Ok(trip);
             }
             catch (Exception ex)
             {
-                response.Status = false;
-                response.Message = $"An error occurred: {ex.Message}";
-                return StatusCode(500, response);
+                return BadRequest(ex.Message);
             }
         }
-
+        
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTrip(int id, [FromBody] TripDTO tripDTO)
         {
