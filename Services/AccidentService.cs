@@ -65,27 +65,16 @@ namespace FleetPulse_BackEndDevelopment.Services
 
             if (accidentCreateDto.Photos != null && accidentCreateDto.Photos.Count > 0)
             {
-                List<byte[]> photoBytesList = new List<byte[]>();
-
+                var photoBytesList = new List<byte[]>();
                 foreach (var formFile in accidentCreateDto.Photos)
                 {
                     if (formFile.Length > 0)
                     {
-                        using var stream = formFile.OpenReadStream();
-                        using var image = Image.Load(stream);
-
-                        image.Mutate(x => x.Resize(new ResizeOptions
-                        {
-                            Mode = ResizeMode.Max,
-                            Size = new Size(800, 800)
-                        }));
-
                         using var memoryStream = new MemoryStream();
-                        image.Save(memoryStream, new JpegEncoder { Quality = 75 });
+                        await formFile.CopyToAsync(memoryStream);
                         photoBytesList.Add(memoryStream.ToArray());
                     }
                 }
-
                 accident.Photos = CombinePhotoBytes(photoBytesList);
             }
 
@@ -94,7 +83,8 @@ namespace FleetPulse_BackEndDevelopment.Services
 
             return _mapper.Map<AccidentDTO>(accident);
         }
-
+        
+        
         public async Task<AccidentDTO> UpdateAccidentAsync(int id, AccidentDTO accidentDto)
         {
             var accident = await _context.Accidents.FindAsync(id);

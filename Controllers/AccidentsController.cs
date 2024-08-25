@@ -2,6 +2,7 @@
 using FleetPulse_BackEndDevelopment.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
@@ -11,10 +12,12 @@ namespace FleetPulse_BackEndDevelopment.Controllers
     public class AccidentsController : ControllerBase
     {
         private readonly IAccidentService _accidentService;
+        private readonly ILogger<AuthController> _logger;
 
-        public AccidentsController(IAccidentService accidentService)
+        public AccidentsController(IAccidentService accidentService, ILogger<AuthController> logger)
         {
             _accidentService = accidentService;
+            _logger = logger;
         }
         
         [HttpGet("latest-month/count")]
@@ -27,7 +30,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AccidentDTO>>> GetAccidents()
         {
-            var accidents = await _accidentService.GetAllAccidentsAsync();  // Use service method
+            var accidents = await _accidentService.GetAllAccidentsAsync();
             return Ok(accidents);
         }
 
@@ -42,8 +45,23 @@ namespace FleetPulse_BackEndDevelopment.Controllers
         [HttpPost]
         public async Task<ActionResult<AccidentDTO>> CreateAccident([FromForm] AccidentCreateDTO accidentCreateDto)
         {
-            var accident = await _accidentService.CreateAccidentAsync(accidentCreateDto);
-            return CreatedAtAction(nameof(GetAccidentById), new { id = accident.AccidentId }, accident);
+            _logger.LogInformation($"Received DTO: {JsonConvert.SerializeObject(accidentCreateDto)}");
+
+            if (string.IsNullOrEmpty(accidentCreateDto.Venue))
+            {
+                return BadRequest("Venue is required.");
+            }
+
+            try
+            {
+                var accident = await _accidentService.CreateAccidentAsync(accidentCreateDto);
+                return CreatedAtAction(nameof(GetAccidentById), new { id = accident.AccidentId }, accident);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating accident");
+                return StatusCode(500, "An error occurred while creating the accident.");
+            }
         }
 
         [HttpPut("{id}")]
