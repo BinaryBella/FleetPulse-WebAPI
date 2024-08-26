@@ -105,11 +105,11 @@ namespace FleetPulse_BackEndDevelopment.Services
 
         public async Task<bool> ActivateTripAsync(int tripId)
         {
-            var trip = await _context.Vehicles.FindAsync(tripId);
+            var trip = await _context.Trips.FindAsync(tripId);
             if (trip == null) return false;
 
             trip.Status = true;
-            _context.Vehicles.Update(trip);
+            _context.Trips.Update(trip);
             await _context.SaveChangesAsync();
 
             return true;
@@ -117,14 +117,15 @@ namespace FleetPulse_BackEndDevelopment.Services
 
         public async Task<bool> DeactivateTripAsync(int tripId)
         {
-            var trip = await _context.Vehicles.FindAsync(tripId);
+            var trip = await _context.Trips.FindAsync(tripId); // Correct DbSet
             if (trip == null) return false;
 
             trip.Status = false;
-            _context.Vehicles.Update(trip);
+            _context.Trips.Update(trip);
             await _context.SaveChangesAsync();
 
             return true;
         }
+
     }
 }

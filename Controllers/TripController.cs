@@ -95,33 +95,26 @@ namespace FleetPulse_BackEndDevelopment.Controllers
                 return StatusCode(500, $"An error occurred while updating the trip: {ex.Message}");
             }
         }
-
-        [HttpPut("{id}/deactivate")]
-        public async Task<IActionResult> DeactivateTrip(int id)
-        {
-            try
-            {
-                await _tripService.DeactivateTripAsync(id);
-                return Ok("Trip deactivated successfully.");
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPut("{id}/activate")]
+        
+        [HttpPut("activate/{id}")]
         public async Task<IActionResult> ActivateTrip(int id)
         {
-            try
-            {
-                await _tripService.ActivateTripAsync(id);
-                return Ok("Trip activated successfully.");
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var result = await _tripService.ActivateTripAsync(id);
+            if (!result)
+                return NotFound();
+
+            return Ok();
         }
+        
+        [HttpPut("deactivate/{id}")]
+        public async Task<IActionResult> DeactivateTrip(int id)
+        {
+            var result = await _tripService.DeactivateTripAsync(id);
+            if (!result)
+                return NotFound();
+
+            return Ok();
+        }
+      
     }
 }
