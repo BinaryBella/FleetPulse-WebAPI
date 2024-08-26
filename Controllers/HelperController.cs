@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FleetPulse_BackEndDevelopment.Data.DTO;
 using Microsoft.AspNetCore.Authorization;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
@@ -57,10 +58,23 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             try
             {
                 var createdHelper = await _helperService.CreateHelperAsync(helperDto);
-                return CreatedAtAction(nameof(GetHelperById), new { id = createdHelper.UserId }, createdHelper);
+                return new JsonResult(new ApiResponse
+                {
+                    Status = true,
+                    Message = "Helper created successfully",
+                    Data = createdHelper
+                });
             }
             catch (Exception ex)
             {
+                if (ex.Message.Contains("already exists"))
+                {
+                    return new JsonResult(new ApiResponse
+                    {
+                        Status = false,
+                        Error = ex.Message
+                    });
+                }
                 return BadRequest(ex.Message);
             }
         }

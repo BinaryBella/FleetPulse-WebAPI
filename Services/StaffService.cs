@@ -64,13 +64,13 @@ namespace FleetPulse_BackEndDevelopment.Services
 
         public async Task<StaffDTO> CreateStaffAsync(StaffDTO staffDto)
         {
-            // Check if email exists
             if (await DoesEmailExistAsync(staffDto.EmailAddress))
                 throw new Exception("Email already exists");
-
-            // Check if username exists
             if (await DoesUsernameExistAsync(staffDto.UserName))
                 throw new Exception("Username already exists");
+
+            // Hash the password
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(staffDto.Password);
 
             var user = new User
             {
@@ -83,15 +83,14 @@ namespace FleetPulse_BackEndDevelopment.Services
                 EmergencyContact = staffDto.EmergencyContact,
                 Status = staffDto.Status,
                 UserName = staffDto.UserName,
-                HashedPassword = staffDto.Password,
+                HashedPassword = hashedPassword,
                 JobTitle = "Staff"
             };
-
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             await _emailService.SendUsernameAndPassword(user.EmailAddress, user.UserName, staffDto.Password);
-
             staffDto.UserId = user.UserId;
+            staffDto.Password = null;
             return staffDto;
         }
 

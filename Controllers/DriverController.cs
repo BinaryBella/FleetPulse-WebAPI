@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FleetPulse_BackEndDevelopment.Data.DTO;
 using Microsoft.AspNetCore.Authorization;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
@@ -57,10 +58,23 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             try
             {
                 var createdDriver = await _driverService.CreateDriverAsync(driverDto);
-                return CreatedAtAction(nameof(GetDriverById), new { id = createdDriver.UserId }, createdDriver);
+                return new JsonResult(new ApiResponse
+                {
+                    Status = true,
+                    Message = "Driver created successfully",
+                    Data = createdDriver
+                });
             }
             catch (Exception ex)
             {
+                if (ex.Message.Contains("already exists"))
+                {
+                    return new JsonResult(new ApiResponse
+                    {
+                        Status = false,
+                        Error = ex.Message
+                    });
+                }
                 return BadRequest(ex.Message);
             }
         }

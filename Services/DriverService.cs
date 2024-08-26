@@ -35,7 +35,7 @@ namespace FleetPulse_BackEndDevelopment.Services
                     BloodGroup = u.BloodGroup,
                     Status = u.Status,
                     UserName = u.UserName,
-                    Password = u.HashedPassword // Assuming hashed password is already stored
+                    Password = u.HashedPassword 
                 }).ToListAsync();
         }
 
@@ -69,13 +69,13 @@ namespace FleetPulse_BackEndDevelopment.Services
 
         public async Task<DriverDTO> CreateDriverAsync(DriverDTO driverDto)
         {
-            // Check if email exists
             if (await DoesEmailExistAsync(driverDto.EmailAddress))
                 throw new Exception("Email already exists");
-
-            // Check if username exists
             if (await DoesUsernameExistAsync(driverDto.UserName))
                 throw new Exception("Username already exists");
+
+            // Hash the password
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(driverDto.Password);
 
             var user = new User
             {
@@ -91,15 +91,14 @@ namespace FleetPulse_BackEndDevelopment.Services
                 BloodGroup = driverDto.BloodGroup,
                 Status = driverDto.Status,
                 UserName = driverDto.UserName,
-                HashedPassword = driverDto.Password, // Ideally should hash the password
+                HashedPassword = hashedPassword,
                 JobTitle = "Driver"
             };
-
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             await _emailService.SendUsernameAndPassword(user.EmailAddress, user.UserName, driverDto.Password);
-
             driverDto.UserId = user.UserId;
+            driverDto.Password = null;
             return driverDto;
         }
 

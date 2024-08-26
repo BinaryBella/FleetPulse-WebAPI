@@ -70,13 +70,13 @@ namespace FleetPulse_BackEndDevelopment.Services
 
         public async Task<HelperDTO> CreateHelperAsync(HelperDTO helperDto)
         {
-            // Check if email exists
             if (await DoesEmailExistAsync(helperDto.EmailAddress))
                 throw new Exception("Email already exists");
-
-            // Check if username exists
             if (await DoesUsernameExistAsync(helperDto.UserName))
                 throw new Exception("Username already exists");
+
+            // Hash the password
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(helperDto.Password);
 
             var user = new User
             {
@@ -90,14 +90,14 @@ namespace FleetPulse_BackEndDevelopment.Services
                 BloodGroup = helperDto.BloodGroup,
                 Status = helperDto.Status,
                 UserName = helperDto.UserName,
-                HashedPassword = helperDto.Password, // Ideally should hash the password
+                HashedPassword = hashedPassword,
                 JobTitle = "Helper"
             };
-
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             await _emailService.SendUsernameAndPassword(user.EmailAddress, user.UserName, helperDto.Password);
             helperDto.UserId = user.UserId;
+            helperDto.Password = null;
             return helperDto;
         }
 

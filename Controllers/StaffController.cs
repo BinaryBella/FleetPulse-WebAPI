@@ -1,4 +1,5 @@
-﻿using FleetPulse_BackEndDevelopment.DTOs;
+﻿using FleetPulse_BackEndDevelopment.Data.DTO;
+using FleetPulse_BackEndDevelopment.DTOs;
 using FleetPulse_BackEndDevelopment.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
@@ -40,10 +41,23 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             try
             {
                 var createdStaff = await _staffService.CreateStaffAsync(staffDto);
-                return CreatedAtAction(nameof(GetStaffById), new { id = createdStaff.UserId }, createdStaff);
+                return new JsonResult(new ApiResponse
+                {
+                    Status = true,
+                    Message = "Driver created successfully",
+                    Data = createdStaff
+                });
             }
             catch (Exception ex)
             {
+                if (ex.Message.Contains("already exists"))
+                {
+                    return new JsonResult(new ApiResponse
+                    {
+                        Status = false,
+                        Error = ex.Message
+                    });
+                }
                 return BadRequest(ex.Message);
             }
         }
