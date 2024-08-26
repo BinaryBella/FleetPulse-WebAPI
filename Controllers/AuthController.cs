@@ -37,7 +37,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             _logger = logger;
         }
         
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Staff")]
         [HttpGet("count")]
         public async Task<ActionResult<int>> GetUserCount()
         {
