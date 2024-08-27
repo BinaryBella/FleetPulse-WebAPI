@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class TripController : ControllerBase
@@ -18,6 +17,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             _tripService = tripService;
         }
 
+        [Authorize(Roles = "Admin,Staff")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TripDTO>>> GetAllTrips()
         {
@@ -32,6 +32,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
         }
         
+        [Authorize(Roles = "Admin,Staff")]
         [HttpGet("dailycount")]
         public async Task<ActionResult<int>> GetDailyTripCount()
         {
@@ -48,7 +49,8 @@ namespace FleetPulse_BackEndDevelopment.Controllers
 
             return Ok(trip);
         }
-
+        
+        [Authorize(Roles = "Admin,Staff,Driver,Helper")]
         [HttpPost]
         public async Task<IActionResult> AddTrip([FromBody] TripDTO tripDto)
         {
@@ -63,6 +65,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
         }
         
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTrip(int id, [FromBody] TripDTO tripDTO)
         {
@@ -96,6 +99,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
         }
         
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPut("activate/{id}")]
         public async Task<IActionResult> ActivateTrip(int id)
         {
@@ -106,6 +110,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok();
         }
         
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPut("deactivate/{id}")]
         public async Task<IActionResult> DeactivateTrip(int id)
         {

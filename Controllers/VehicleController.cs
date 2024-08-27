@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
-    [Authorize(Roles = "Admin,Staff")]
     [Route("api/[controller]")]
     [ApiController]
     public class VehiclesController : ControllerBase
@@ -17,6 +16,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             _vehicleService = vehicleService;
         }
 
+        [Authorize(Roles = "Admin,Staff,Driver,Helper")]
         [HttpGet]
         public async Task<IActionResult> GetAllVehicles()
         {
@@ -24,6 +24,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(vehicles);
         }
 
+        [Authorize(Roles = "Admin,Staff,Driver,helper")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVehicleById(int id)
         {
@@ -33,7 +34,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(vehicle);
         }
 
-        
+        [Authorize(Roles = "Admin,Staff")]
         [HttpGet("count")]
         public async Task<ActionResult<int>> GetVehiclesCount()
         {
@@ -48,6 +49,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
         }
         
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPost]
         public async Task<IActionResult> AddVehicle([FromBody] VehicleDTO vehicleDto)
         {
@@ -58,6 +60,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return CreatedAtAction(nameof(GetVehicleById), new { id = addedVehicle.VehicleId }, addedVehicle);
         }
 
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateVehicle(int id, [FromBody] VehicleDTO vehicleDto)
         {
@@ -67,6 +70,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(updatedVehicle);
         }
 
+        [Authorize(Roles = "Admin,Staff")]
         [HttpPut("{id}/activate")]
         public async Task<IActionResult> ActivateVehicle(int id)
         {
