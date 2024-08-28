@@ -19,6 +19,8 @@ namespace FleetPulse_BackEndDevelopment.Models
         public int UserId { get; set; }
         public User User { get; set; }
         public bool Status { get; set; }
+        
+        public virtual ICollection<AccidentPhoto> AccidentPhotos { get; set; }
     }
 }
 

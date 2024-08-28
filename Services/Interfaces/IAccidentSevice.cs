@@ -1,4 +1,5 @@
 ﻿using FleetPulse_BackEndDevelopment.DTOs;
+using FleetPulse_BackEndDevelopment.Models;
 
 namespace FleetPulse_BackEndDevelopment.Services
 {
@@ -11,5 +12,6 @@ namespace FleetPulse_BackEndDevelopment.Services
         Task<bool> DeactivateAccidentAsync(int id);
         Task<bool> ActivateAccidentAsync(int id);
         int GetLatestMonthAccidentCount();
+        Task<List<AccidentPhoto>> GetAccidentPhotosAsync(int id);
     }
 }

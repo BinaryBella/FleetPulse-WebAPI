@@ -33,6 +33,12 @@ namespace FleetPulse_BackEndDevelopment.Services
                 }).ToListAsync();
         }
 
+        public async Task<Vehicle?> GetVehicleByRegNumber(string regNumber)
+        {
+            var vehicle = await _context.Vehicles.FirstOrDefaultAsync(v => v.VehicleRegistrationNo == regNumber);
+            return vehicle ?? null;
+        }
+
         public async Task<VehicleDTO> GetVehicleByIdAsync(int vehicleId)
         {
             var vehicle = await _context.Vehicles

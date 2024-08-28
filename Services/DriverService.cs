@@ -67,6 +67,15 @@ namespace FleetPulse_BackEndDevelopment.Services
             };
         }
 
+        public async Task<User?> GetDriverByNIC(string nic)
+        {
+            var user = await _context.Users
+                .Where(u => u.JobTitle == "Driver" && u.NIC == nic)
+                .FirstOrDefaultAsync();
+            
+            return user ?? null;
+        }
+
         public async Task<DriverDTO> CreateDriverAsync(DriverDTO driverDto)
         {
             if (await DoesEmailExistAsync(driverDto.EmailAddress))

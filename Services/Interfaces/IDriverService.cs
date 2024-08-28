@@ -1,6 +1,7 @@
 ﻿using FleetPulse_BackEndDevelopment.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FleetPulse_BackEndDevelopment.Models;
 
 namespace FleetPulse_BackEndDevelopment.Services.Interfaces
 {
@@ -15,5 +16,6 @@ namespace FleetPulse_BackEndDevelopment.Services.Interfaces
         Task<bool> DoesEmailExistAsync(string email);
         Task<bool> DoesUsernameExistAsync(string username);
         Task<int> GetDriverCountAsync();
+        Task<User?> GetDriverByNIC(string nic);
     }
 }

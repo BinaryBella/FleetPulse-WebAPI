@@ -6,6 +6,7 @@ using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
 using FleetPulse_BackEndDevelopment.Data;
 using FleetPulse_BackEndDevelopment.DTOs;
+using FleetPulse_BackEndDevelopment.Services.Interfaces;
 
 namespace FleetPulse_BackEndDevelopment.Services
 {
@@ -13,11 +14,15 @@ namespace FleetPulse_BackEndDevelopment.Services
     {
         private readonly FleetPulseDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IDriverService _driverService;
+        private readonly IVehicleService _vehicleService;
 
-        public AccidentService(FleetPulseDbContext context, IMapper mapper)
+        public AccidentService(FleetPulseDbContext context, IMapper mapper, IDriverService driverService, IVehicleService vehicleService)
         {
             _context = context;
             _mapper = mapper;
+            _driverService = driverService;
+            _vehicleService = vehicleService;
         }
 
         public async Task<IEnumerable<AccidentDTO>> GetAllAccidentsAsync()
@@ -62,28 +67,65 @@ namespace FleetPulse_BackEndDevelopment.Services
         public async Task<AccidentDTO> CreateAccidentAsync(AccidentCreateDTO accidentCreateDto)
         {
             var accident = _mapper.Map<Accident>(accidentCreateDto);
+            var accidentPhotos = new List<AccidentPhoto>();
+            
+            accident.Photos = Array.Empty<byte>();
 
+            if (accidentCreateDto.SpecialNotes == null)
+            {
+                accident.SpecialNotes = "";
+            }
+            
+            var driver = await _driverService.GetDriverByNIC(accidentCreateDto.DriverNIC);
+            if (driver == null)
+            {
+                throw new Exception("Driver not found");
+            }
+            accident.UserId = driver.UserId;
+            
+            var vehicle = await _vehicleService.GetVehicleByRegNumber(accidentCreateDto.VehicleRegistrationNumber);
+            if (vehicle == null)
+            {
+                throw new Exception("Vehicle not found");
+            }
+            accident.VehicleId = vehicle.VehicleId;
+            accident.Status = true;
+            var result = _context.Accidents.Add(accident);
+            await _context.SaveChangesAsync();
+            
             if (accidentCreateDto.Photos != null && accidentCreateDto.Photos.Count > 0)
             {
-                var photoBytesList = new List<byte[]>();
                 foreach (var formFile in accidentCreateDto.Photos)
                 {
+                    var photoBytesList = new List<byte[]>();
                     if (formFile.Length > 0)
                     {
                         using var memoryStream = new MemoryStream();
                         await formFile.CopyToAsync(memoryStream);
                         photoBytesList.Add(memoryStream.ToArray());
                     }
+                    
+                    var accidentPhoto = new AccidentPhoto
+                    {
+                        Photo = photoBytesList.Last(),
+                        AccidentId = result.Entity.AccidentId
+                    };
+                    
+                    accidentPhotos.Add(accidentPhoto);
                 }
-                accident.Photos = CombinePhotoBytes(photoBytesList);
             }
-
-            _context.Accidents.Add(accident);
+            
+            _context.AccidentPhotos.AddRange(accidentPhotos);
+            
             await _context.SaveChangesAsync();
 
             return _mapper.Map<AccidentDTO>(accident);
         }
         
+        public async Task<List<AccidentPhoto>> GetAccidentPhotosAsync(int id)
+        {
+            return await _context.AccidentPhotos.Where(ap => ap.AccidentId == id).ToListAsync();
+        }
         
         public async Task<AccidentDTO> UpdateAccidentAsync(int id, AccidentDTO accidentDto)
         {

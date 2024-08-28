@@ -1,9 +1,6 @@
 ﻿using FleetPulse_BackEndDevelopment.DTOs;
 using FleetPulse_BackEndDevelopment.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using FleetPulse_BackEndDevelopment.Data.DTO;
 using Microsoft.AspNetCore.Authorization;
 

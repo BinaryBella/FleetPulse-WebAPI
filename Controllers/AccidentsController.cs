@@ -1,4 +1,5 @@
-﻿using FleetPulse_BackEndDevelopment.DTOs;
+﻿using FleetPulse_BackEndDevelopment.Data.DTO;
+using FleetPulse_BackEndDevelopment.DTOs;
 using FleetPulse_BackEndDevelopment.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,9 +42,27 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             if (accident == null) return NotFound();
             return Ok(accident);
         }
+        
+        [HttpGet("{id}")]
+        public async Task<ActionResult<List<byte[]>>> GetAccidentPhotos(int id)
+        {
+            var accidentPhotos = await _accidentService.GetAccidentPhotosAsync(id);
+            var apiResponse = new ApiResponse
+            {
+                Status = true,
+                Message = "Accident photos retrieved successfully",
+                Data = accidentPhotos
+            };
+            if (accidentPhotos == null || accidentPhotos.Count == 0)
+            {
+                apiResponse.Data = new List<byte[]>();
+                apiResponse.Message = "No photos found";
+            }
+            return new JsonResult(apiResponse);
+        }
 
         [HttpPost]
-        public async Task<ActionResult<AccidentDTO>> CreateAccident([FromForm] AccidentCreateDTO accidentCreateDto)
+        public async Task<ActionResult> CreateAccident([FromForm] AccidentCreateDTO accidentCreateDto)
         {
             _logger.LogInformation($"Received DTO: {JsonConvert.SerializeObject(accidentCreateDto)}");
 
@@ -55,7 +74,12 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             try
             {
                 var accident = await _accidentService.CreateAccidentAsync(accidentCreateDto);
-                return CreatedAtAction(nameof(GetAccidentById), new { id = accident.AccidentId }, accident);
+                var response = new ApiResponse
+                {
+                    Status = true,
+                    Message = "Accident created successfully",
+                };
+                return new JsonResult(response);
             }
             catch (Exception ex)
             {
