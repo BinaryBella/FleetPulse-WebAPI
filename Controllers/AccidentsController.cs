@@ -43,7 +43,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(accident);
         }
         
-        [HttpGet("{id}")]
+        [HttpGet("photos/{id}")]
         public async Task<ActionResult<List<byte[]>>> GetAccidentPhotos(int id)
         {
             var accidentPhotos = await _accidentService.GetAccidentPhotosAsync(id);
