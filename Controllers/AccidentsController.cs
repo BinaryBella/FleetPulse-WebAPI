@@ -39,9 +39,11 @@ namespace FleetPulse_BackEndDevelopment.Controllers
         public async Task<ActionResult<AccidentDTO>> GetAccidentById(int id)
         {
             var accident = await _accidentService.GetAccidentByIdAsync(id);
-            if (accident == null) return NotFound();
+            if (accident == null)
+                return NotFound();
             return Ok(accident);
         }
+
         
         [HttpGet("photos/{id}")]
         public async Task<ActionResult<List<byte[]>>> GetAccidentPhotos(int id)

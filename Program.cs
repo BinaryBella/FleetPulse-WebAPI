@@ -11,6 +11,8 @@ using FleetPulse_BackEndDevelopment.Quartz.Jobs;
 using FleetPulse_BackEndDevelopment.Services;
 using FleetPulse_BackEndDevelopment.Services.Interfaces;
 using FirebaseAdmin.Messaging;
+using AutoMapper;
+using FleetPulse_BackEndDevelopment.MappingProfiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -153,6 +155,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<SendMaintenanceNotificationJob>();
     services.AddScoped<IDriverService, DriverService>();
     services.AddScoped<IEmailUserCredentialService, EmailUserCredentialService>();
+    builder.Services.AddAutoMapper(typeof(AccidentProfile));
 
     // Add logging (if needed)
     services.AddLogging();

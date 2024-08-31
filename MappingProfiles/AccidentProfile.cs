@@ -8,9 +8,20 @@ namespace FleetPulse_BackEndDevelopment.MappingProfiles
     {
         public AccidentProfile()
         {
-            CreateMap<Accident, AccidentDTO>();
-            CreateMap<AccidentCreateDTO, Accident>()
-                .ForMember(dest => dest.Photos, opt => opt.Ignore()); // Handle Photos separately
+            // Map from DTO to Entity
+            CreateMap<AccidentDTO, Accident>()
+                .ForMember(dest => dest.VehicleId, opt => opt.Ignore()) // Ignore VehicleId mapping
+                .ForMember(dest => dest.UserId, opt => opt.Ignore());   // Ignore UserId mapping
+            CreateMap<Accident, AccidentDTO>()
+                .ForMember(dest => dest.VehicleRegistrationNo, opt => opt.MapFrom(src => src.Vehicle.VehicleRegistrationNo))
+                .ForMember(dest => dest.NIC, opt => opt.MapFrom(src => src.User.NIC));
+            
+
+            // Map from Entity to DTO
+            CreateMap<Accident, AccidentDTO>()
+                .ForMember(dest => dest.VehicleRegistrationNo, opt => opt.MapFrom(src => src.Vehicle.VehicleRegistrationNo))
+                .ForMember(dest => dest.NIC, opt => opt.MapFrom(src => src.User.NIC));
+            
         }
     }
 }

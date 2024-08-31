@@ -204,6 +204,16 @@ namespace FleetPulse_BackEndDevelopment.Services
             return user?.UserId;
         }
 
+        private async Task<int> GetUserIdByNicAsync(string nic)
+        {
+            var user = await dataContext.Users.FirstOrDefaultAsync(u => u.NIC == nic);
+            if (user == null)
+            {
+                throw new ArgumentException("Invalid NIC.");
+            }
+            return user.UserId;
+        }
+
         public async Task<bool> IsRefreshTokenValidAsync(string token)
         {
             var refreshToken = await dataContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == token);

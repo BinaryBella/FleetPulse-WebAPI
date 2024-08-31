@@ -49,9 +49,16 @@ namespace FleetPulse_BackEndDevelopment.Services
         
         public async Task<AccidentDTO> GetAccidentByIdAsync(int id)
         {
-            var accident = await _context.Accidents.Include(a => a.Vehicle).FirstOrDefaultAsync(a => a.AccidentId == id);
-            if (accident == null) return null;
-            return _mapper.Map<AccidentDTO>(accident);
+            var accident = await _context.Accidents
+                .Include(a => a.Vehicle)
+                .Include(a => a.User)
+                .FirstOrDefaultAsync(a => a.AccidentId == id);
+
+            if (accident == null)
+                return null;
+
+            var accidentDto = _mapper.Map<AccidentDTO>(accident);
+            return accidentDto;
         }
 
         public int GetLatestMonthAccidentCount()
@@ -60,8 +67,7 @@ namespace FleetPulse_BackEndDevelopment.Services
             var lastMonthDate = currentDate.AddMonths(-1);
 
             return _context.Accidents
-                .Where(a => a.DateTime >= lastMonthDate && a.DateTime <= currentDate)
-                .Count();
+                .Count(a => a.DateTime >= lastMonthDate && a.DateTime <= currentDate);
         }
         
         public async Task<AccidentDTO> CreateAccidentAsync(AccidentCreateDTO accidentCreateDto)
@@ -129,15 +135,43 @@ namespace FleetPulse_BackEndDevelopment.Services
         
         public async Task<AccidentDTO> UpdateAccidentAsync(int id, AccidentDTO accidentDto)
         {
-            var accident = await _context.Accidents.FindAsync(id);
+            var accident = await _context.Accidents.Include(a => a.Vehicle).Include(a => a.User).FirstOrDefaultAsync(a => a.AccidentId == id);
             if (accident == null) return null;
 
+            // Find the vehicle based on the registration number
+            var vehicle = await _context.Vehicles.FirstOrDefaultAsync(v => v.VehicleRegistrationNo == accidentDto.VehicleRegistrationNo);
+            if (vehicle == null)
+            {
+                throw new ArgumentException("Invalid vehicle registration number.");
+            }
+
+            // Manually set the correct VehicleId
+            accident.VehicleId = vehicle.VehicleId;
+
+            // Manually map other properties that AutoMapper can't handle automatically
+            accident.UserId = await GetUserIdByNICAsync(accidentDto.NIC); // Assume you have a method to get UserId from NIC
+
+            // Map the rest of the properties
             _mapper.Map(accidentDto, accident);
+
             _context.Accidents.Update(accident);
             await _context.SaveChangesAsync();
 
             return _mapper.Map<AccidentDTO>(accident);
         }
+
+
+        private async Task<int> GetUserIdByNICAsync(string nic)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.NIC == nic);
+            if (user == null)
+            {
+                throw new ArgumentException("Invalid NIC.");
+            }
+            return user.UserId;
+        }
+
+
 
         public async Task<bool> DeactivateAccidentAsync(int id)
         {
