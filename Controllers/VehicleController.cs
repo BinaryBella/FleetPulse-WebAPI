@@ -16,7 +16,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             _vehicleService = vehicleService;
         }
 
-        [Authorize(Roles = "Admin,Staff,Driver,Helper")]
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAllVehicles()
         {
@@ -24,7 +24,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(vehicles);
         }
 
-        [Authorize(Roles = "Admin,Staff,Driver,helper")]
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVehicleById(int id)
         {
@@ -34,7 +34,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(vehicle);
         }
 
-        [Authorize(Roles = "Admin,Staff")]
+        [AllowAnonymous]
         [HttpGet("count")]
         public async Task<ActionResult<int>> GetVehiclesCount()
         {
@@ -49,7 +49,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
         }
         
-        [Authorize(Roles = "Admin,Staff")]
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> AddVehicle([FromBody] VehicleDTO vehicleDto)
         {

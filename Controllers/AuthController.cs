@@ -344,7 +344,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin,Staff")]
+        [AllowAnonymous]
         [HttpPost("change-password")]
         public IActionResult ChangePassword([FromBody] ChangePasswordDTO model)
         {
@@ -438,7 +438,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin,Staff")]
+        [AllowAnonymous]
         [HttpGet("userProfile")]
         public async Task<ActionResult<StaffDTO>> GetUserByUsernameAsync(string username)
         {
@@ -464,7 +464,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(staffDTO);
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpPut("UpdateDriverProfilePicture")]
         public async Task<IActionResult> UpdateDriverProfilePicture([FromBody] ProfilePictureDTO profilePictureDTO)
         {

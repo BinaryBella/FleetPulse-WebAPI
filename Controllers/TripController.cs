@@ -50,7 +50,7 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(trip);
         }
         
-        [Authorize(Roles = "Admin,Staff,Driver,Helper")]
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> AddTrip([FromBody] TripDTO tripDto)
         {
