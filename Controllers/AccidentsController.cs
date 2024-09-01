@@ -44,24 +44,6 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             return Ok(accident);
         }
         
-        [HttpGet("{id}")]
-        public async Task<ActionResult<List<byte[]>>> GetAccidentPhotos(int id)
-        {
-            var accidentPhotos = await _accidentService.GetAccidentPhotosAsync(id);
-            var apiResponse = new ApiResponse
-            {
-                Status = true,
-                Message = "Accident photos retrieved successfully",
-                Data = accidentPhotos
-            };
-            if (accidentPhotos == null || accidentPhotos.Count == 0)
-            {
-                apiResponse.Data = new List<byte[]>();
-                apiResponse.Message = "No photos found";
-            }
-            return new JsonResult(apiResponse);
-        }
-
         
         [HttpGet("photos/{id}")]
         public async Task<ActionResult<List<byte[]>>> GetAccidentPhotos(int id)
