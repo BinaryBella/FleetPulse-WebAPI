@@ -49,7 +49,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
             .ForJob(jobKey)
             .WithIdentity("SendMaintenanceNotificationTrigger")
             .WithSimpleSchedule(x => x
-                .WithIntervalInSeconds(15) // Runs every 30 seconds for testing purposes
+                .WithIntervalInSeconds(60)
                 .RepeatForever()));
     });
 
