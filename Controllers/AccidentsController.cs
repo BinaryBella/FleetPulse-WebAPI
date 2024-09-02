@@ -62,7 +62,8 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
             return new JsonResult(apiResponse);
         }
-
+        
+        
         [HttpPost]
         public async Task<ActionResult> CreateAccident([FromForm] AccidentCreateDTO accidentCreateDto)
         {
