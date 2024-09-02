@@ -94,9 +94,22 @@ namespace FleetPulse_BackEndDevelopment.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<AccidentDTO>> UpdateAccident(int id, AccidentDTO accidentDto)
         {
-            var updatedAccident = await _accidentService.UpdateAccidentAsync(id, accidentDto);
-            if (updatedAccident == null) return NotFound();
-            return Ok(updatedAccident);
+            try
+            {
+                var updatedAccident = await _accidentService.UpdateAccidentAsync(id, accidentDto);
+                var response = new ApiResponse
+                {
+                    Status = updatedAccident != null,
+                    Message = "Accident created successfully"
+                };
+                if (updatedAccident == null) response.Message = "Accident Cannot Be Found";
+                return Ok(updatedAccident);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         [HttpPut("{id}/deactivate")]

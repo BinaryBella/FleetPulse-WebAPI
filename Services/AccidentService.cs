@@ -73,71 +73,60 @@ namespace FleetPulse_BackEndDevelopment.Services
 
         public async Task<AccidentDTO> CreateAccidentAsync(AccidentCreateDTO accidentCreateDto)
         {
-            // Create a new Accident instance
-            var accident = new Accident
-            {
-                Venue = accidentCreateDto.Venue,
-                DateTime = accidentCreateDto.DateTime,
-                SpecialNotes = accidentCreateDto.SpecialNotes ?? string.Empty,
-                Loss = accidentCreateDto.Loss,
-                DriverInjuredStatus = accidentCreateDto.DriverInjuredStatus,
-                HelperInjuredStatus = accidentCreateDto.HelperInjuredStatus,
-                VehicleDamagedStatus = accidentCreateDto.VehicleDamagedStatus,
-                Status = accidentCreateDto.Status
-            };
+            var accident = _mapper.Map<Accident>(accidentCreateDto);
+            var accidentPhotos = new List<AccidentPhoto>();
+            
+            accident.Photos = Array.Empty<byte>();
 
+            if (accidentCreateDto.SpecialNotes == null)
+            {
+                accident.SpecialNotes = "";
+            }
+            
             var driver = await _driverService.GetDriverByNIC(accidentCreateDto.DriverNIC);
             if (driver == null)
             {
                 throw new Exception("Driver not found");
             }
-
             accident.UserId = driver.UserId;
-
+            
             var vehicle = await _vehicleService.GetVehicleByRegNumber(accidentCreateDto.VehicleRegistrationNumber);
             if (vehicle == null)
             {
                 throw new Exception("Vehicle not found");
             }
-
             accident.VehicleId = vehicle.VehicleId;
-
-            // Add the Accident to the context
-            _context.Accidents.Add(accident);
-            await _context.SaveChangesAsync(); // Save to get the AccidentId
-
-            // Create a list to hold the AccidentPhoto entries
-            var accidentPhotos = new List<AccidentPhoto>();
-
+            accident.Status = true;
+            var result = _context.Accidents.Add(accident);
+            await _context.SaveChangesAsync();
+            
             if (accidentCreateDto.Photos != null && accidentCreateDto.Photos.Count > 0)
             {
                 foreach (var formFile in accidentCreateDto.Photos)
                 {
+                    var photoBytesList = new List<byte[]>();
                     if (formFile.Length > 0)
                     {
                         using var memoryStream = new MemoryStream();
                         await formFile.CopyToAsync(memoryStream);
-
-                        var accidentPhoto = new AccidentPhoto
-                        {
-                            AccidentId = accident.AccidentId, // Foreign key reference
-                            Photo = memoryStream.ToArray() // Store the binary data
-                        };
-
-                        accidentPhotos.Add(accidentPhoto);
+                        photoBytesList.Add(memoryStream.ToArray());
                     }
+                    
+                    var accidentPhoto = new AccidentPhoto
+                    {
+                        Photo = photoBytesList.Last(),
+                        AccidentId = result.Entity.AccidentId
+                    };
+                    
+                    accidentPhotos.Add(accidentPhoto);
                 }
-
-                // Add all photos to the context
-                _context.AccidentPhotos.AddRange(accidentPhotos);
-                await _context.SaveChangesAsync();
             }
+            
+            _context.AccidentPhotos.AddRange(accidentPhotos);
+            
+            await _context.SaveChangesAsync();
 
-            // Map back to a DTO if needed
-            return new AccidentDTO
-            {
-                // Fill properties as needed
-            };
+            return _mapper.Map<AccidentDTO>(accident);
         }
 
 
@@ -146,7 +135,7 @@ namespace FleetPulse_BackEndDevelopment.Services
             return await _context.AccidentPhotos.Where(ap => ap.AccidentId == id).ToListAsync();
         }
 
-        public async Task<AccidentDTO> UpdateAccidentAsync(int id, AccidentDTO accidentDto)
+        public async Task<AccidentDTO?> UpdateAccidentAsync(int id, AccidentDTO accidentDto)
         {
             var accident = await _context.Accidents.Include(a => a.Vehicle).Include(a => a.User)
                 .FirstOrDefaultAsync(a => a.AccidentId == id);
@@ -156,20 +145,28 @@ namespace FleetPulse_BackEndDevelopment.Services
             var vehicle =
                 await _context.Vehicles.FirstOrDefaultAsync(v =>
                     v.VehicleRegistrationNo == accidentDto.VehicleRegistrationNo);
-            if (vehicle == null)
-            {
-                throw new ArgumentException("Invalid vehicle registration number.");
-            }
+            
+            if (vehicle == null) return null;
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.NIC == accidentDto.NIC);
+            if (user == null) return null;
 
             // Manually set the correct VehicleId
+            accident.Venue = accidentDto.Venue;
+            accident.DateTime = accidentDto.DateTime;
+            accident.SpecialNotes = accidentDto.SpecialNotes;
+            accident.Loss = accidentDto.Loss;
+            accident.DriverInjuredStatus = accidentDto.DriverInjuredStatus;
+            accident.HelperInjuredStatus = accidentDto.HelperInjuredStatus;
+            accident.VehicleDamagedStatus = accidentDto.VehicleDamagedStatus;
             accident.VehicleId = vehicle.VehicleId;
+            accident.UserId = user.UserId;
 
             // Manually map other properties that AutoMapper can't handle automatically
             accident.UserId =
                 await GetUserIdByNICAsync(accidentDto.NIC); // Assume you have a method to get UserId from NIC
 
             // Map the rest of the properties
-            _mapper.Map(accidentDto, accident);
 
             _context.Accidents.Update(accident);
             await _context.SaveChangesAsync();
