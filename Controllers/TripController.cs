@@ -32,7 +32,6 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
         }
         
-        [Authorize(Roles = "Admin,Staff")]
         [HttpGet("dailycount")]
         public async Task<ActionResult<int>> GetDailyTripCount()
         {

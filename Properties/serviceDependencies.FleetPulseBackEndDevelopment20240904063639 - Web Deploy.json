@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/FleetPulseBackEndDevelopment20240904063639/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsSqlServerConnectionStri_C499C489E2",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/fleetvms-server/databases/FleetPulse",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:SqlServerConnectionString",
+      "dynamicId": null
+    }
+  }
+}

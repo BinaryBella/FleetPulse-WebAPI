@@ -125,7 +125,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
         options.UseSqlServer(configuration.GetConnectionString("SqlServerConnectionString"),
             sqlOptions => sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null));
     });
-    
+
     // Add AutoMapper
     services.AddAutoMapper(typeof(MappingProfiles));
 
@@ -168,11 +168,17 @@ void Configure(WebApplication app, IWebHostEnvironment env)
     app.UseAuthorization();
     app.UseCors();
 
+    // Enable Swagger for all environments
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "FleetPulse API v1");
+        c.RoutePrefix = string.Empty; // Makes Swagger the root page
+    });
+
     if (env.IsDevelopment())
     {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-        app.UseSeedDB();
+        app.UseSeedDB(); // Only seed DB in development
     }
 
     app.MapControllers();
