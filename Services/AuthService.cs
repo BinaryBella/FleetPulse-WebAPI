@@ -21,12 +21,10 @@ namespace FleetPulse_BackEndDevelopment.Services
     public class AuthService : IAuthService
     {
         private readonly FleetPulseDbContext dataContext;
-        private readonly IResetPasswordService _resetPasswordService;
 
-        public AuthService(FleetPulseDbContext dataContext,IResetPasswordService resetPasswordService)
+        public AuthService(FleetPulseDbContext dataContext)
         {
             this.dataContext = dataContext;
-            _resetPasswordService = resetPasswordService;
         }
         
         
@@ -314,27 +312,6 @@ namespace FleetPulse_BackEndDevelopment.Services
         }
         
         
-        public async Task RequestPasswordReset(string userEmail)
-        {
-            var user = await dataContext.Users
-                .FirstOrDefaultAsync(u => u.EmailAddress == userEmail && 
-                                          (u.JobTitle == "Driver" || u.JobTitle == "Helper"));
-
-            if (user == null)
-            {
-                throw new Exception("User not found or unauthorized.");
-            }
-
-            var admin = await dataContext.Users
-                .FirstOrDefaultAsync(u => u.JobTitle == "Admin");
-
-            if (admin == null)
-            {
-                throw new Exception("No Admin found.");
-            }
-
-            await _resetPasswordService.SendResetPasswordEmailAsync(admin.EmailAddress, user.UserName, "YourNewPassword");
-        }
 
     }
 }

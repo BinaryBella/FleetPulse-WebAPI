@@ -12,11 +12,40 @@ namespace FleetPulse_BackEndDevelopment.Services
     {
         private readonly MailSettings _mailSettings;
         private readonly ILogger<MailService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public MailService(IOptions<MailSettings> mailSettings, ILogger<MailService> logger)
-        {
+        public MailService(IOptions<MailSettings> mailSettings, 
+            ILogger<MailService> logger, 
+            IHttpContextAccessor httpContextAccessor, 
+            IHttpClientFactory httpClientFactory,
+            IWebHostEnvironment webHostEnvironment) { 
             _mailSettings = mailSettings.Value;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
+            _httpClientFactory = httpClientFactory;
+            _webHostEnvironment = webHostEnvironment;
+        }
+
+        private async Task<string> GetEmailTemplateAsync(string templatePath)
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+            var fullUrl = $"{baseUrl}/EmailTemplates/{templatePath}";
+
+            _logger.LogInformation($"Fetching email template from: {fullUrl}");
+
+            using var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync(fullUrl);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError($"Failed to fetch email template. Status code: {response.StatusCode}");
+                throw new FileNotFoundException($"Email template not found: {fullUrl}");
+            }
+
+            return await response.Content.ReadAsStringAsync();
         }
 
         public async Task SendEmailAsync(MailRequest mailRequest)
@@ -29,8 +58,12 @@ namespace FleetPulse_BackEndDevelopment.Services
             var builder = new BodyBuilder();
 
             // Load the HTML template
-            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "EmailTemplates", "VerificationEmailTemplate.html");
-            
+            //var templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "EmailTemplates", "VerificationEmailTemplate.html");
+
+            var request = _httpContextAccessor.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+            var templatePath = Path.Combine(_webHostEnvironment.WebRootPath, "EmailTemplates/VerificationEmailTemplate.html");
+
             if (!File.Exists(templatePath))
             {
                 _logger.LogError("Email template not found: {TemplatePath}", templatePath);
@@ -42,7 +75,7 @@ namespace FleetPulse_BackEndDevelopment.Services
             builder.HtmlBody = emailBody;
 
             // Attach the logo as a linked resource
-            var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "EmailTemplates", "logo.jpg");
+            var logoPath = Path.Combine(_webHostEnvironment.WebRootPath, "EmailTemplates", "logo.jpg");
             var image = builder.LinkedResources.Add(logoPath);
             image.ContentId = MimeUtils.GenerateMessageId();
 

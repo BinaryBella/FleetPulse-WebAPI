@@ -125,7 +125,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
         options.UseSqlServer(configuration.GetConnectionString("SqlServerConnectionString"),
             sqlOptions => sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null));
     });
-    
+
     // Add AutoMapper
     services.AddAutoMapper(typeof(MappingProfiles));
 
@@ -164,8 +164,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
     // Add AutoMapper profiles
     services.AddAutoMapper(typeof(AccidentProfile));
-    services.AddScoped<IResetPasswordService, ResetPasswordService>();
-    builder.Services.AddAutoMapper(typeof(AccidentProfile));
 
     // Add logging (if needed)
     services.AddLogging();
@@ -174,16 +172,21 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 void Configure(WebApplication app, IWebHostEnvironment env)
 {
     app.UseHttpsRedirection();
+    
+    // Add static files middleware
+    app.UseStaticFiles();
+    
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseCors();
 
-    if (env.IsDevelopment())
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
     {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-        app.UseSeedDB();
-    }
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "FleetPulse API v1");
+        c.RoutePrefix = string.Empty; // Makes Swagger the root page
+    });
 
     app.MapControllers();
 }
