@@ -200,13 +200,14 @@ namespace FleetPulse_BackEndDevelopment.Controllers
             }
             catch (Exception error)
             {
-                _logger.LogError(error, "An error occurred while processing the forgot password request: {Message}",
-                    error.Message);
+                _logger.LogError(error, "An error occurred while processing the forgot password request: {Message}, StackTrace: {StackTrace}",
+                    error.Message, error.StackTrace);
 
                 response.Status = false;
-                response.Message = "An error occurred while processing your request";
+                response.Message = $"An error occurred while processing your request: {error.Message}";
                 return StatusCode(500, response);
             }
+
         }
 
         [AllowAnonymous]

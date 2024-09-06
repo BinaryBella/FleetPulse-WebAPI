@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 
 namespace FleetPulse_BackEndDevelopment.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class AccidentsController : ControllerBase

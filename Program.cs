@@ -155,6 +155,15 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<SendMaintenanceNotificationJob>();
     services.AddScoped<IDriverService, DriverService>();
     services.AddScoped<IEmailUserCredentialService, EmailUserCredentialService>();
+
+    // Add HttpContextAccessor
+    services.AddHttpContextAccessor();
+
+    // Add HttpClient
+    services.AddHttpClient();
+
+    // Add AutoMapper profiles
+    services.AddAutoMapper(typeof(AccidentProfile));
     services.AddScoped<IResetPasswordService, ResetPasswordService>();
     builder.Services.AddAutoMapper(typeof(AccidentProfile));
 
