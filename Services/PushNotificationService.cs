@@ -190,7 +190,7 @@ namespace FleetPulse_BackEndDevelopment.Services
                     Title = notification.Title,
                     Body = notification.Message
                 },
-                Token = "e3LX8gFHuJ9t0tSET3dKGE:APA91bHqbnc5RYb7m3JgYJk348mJ95XkJyhDM0_lnjyNKtVrCBDgXmyrLwx-R5vc9gV9P6pnO2AZoMv4wy_OYqfYazVsCwayNQghGocBO3ee5uGOXV0jimBMhSWfUVq6ZruYZrMkw_qu" // replace with the actual admin device token
+                Token = "X0jAx38tmDv3BWQ9BBq-P:APA91bHmstAZdD1yTlD8VQjiAvYfQvlMvBbIVNx_P_bWyaONRnFPolzZRNiKUWEmZnBrqfkaQ_m_Ns3cbzLYECmy4nYfo7CiRsRTZz4_Oh1V00O1rpYw4uDdvCzD-MZ8zHyAWuh3aFXb" // replace with the actual admin device token
             };
 
             _logger.LogInformation($"Sending notification with data: {{Username: {notification.Username}, JobTitle: {notification.JobTitle}, Title: {notification.Title}, Message: {notification.Message}, EmailAddress: {notification.EmailAddress}}}");

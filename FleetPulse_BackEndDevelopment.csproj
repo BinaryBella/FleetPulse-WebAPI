@@ -43,4 +43,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\EmailTemplates\AccountCredentialsEmailTemplate.html" />
+    <None Include="wwwroot\EmailTemplates\logo.jpg" />
+    <None Include="wwwroot\EmailTemplates\PasswordResetEmailTemplate.html" />
+    <None Include="wwwroot\EmailTemplates\VerificationEmailTemplate.html" />
+  </ItemGroup>
+
 </Project>

@@ -155,7 +155,15 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     services.AddScoped<SendMaintenanceNotificationJob>();
     services.AddScoped<IDriverService, DriverService>();
     services.AddScoped<IEmailUserCredentialService, EmailUserCredentialService>();
-    builder.Services.AddAutoMapper(typeof(AccidentProfile));
+
+    // Add HttpContextAccessor
+    services.AddHttpContextAccessor();
+
+    // Add HttpClient
+    services.AddHttpClient();
+
+    // Add AutoMapper profiles
+    services.AddAutoMapper(typeof(AccidentProfile));
 
     // Add logging (if needed)
     services.AddLogging();
@@ -164,22 +172,21 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 void Configure(WebApplication app, IWebHostEnvironment env)
 {
     app.UseHttpsRedirection();
+    
+    // Add static files middleware
+    app.UseStaticFiles();
+    
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseCors();
 
-    // Enable Swagger for all environments
     app.UseSwagger();
+    app.UseSwaggerUI();
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "FleetPulse API v1");
         c.RoutePrefix = string.Empty; // Makes Swagger the root page
     });
-
-    if (env.IsDevelopment())
-    {
-        app.UseSeedDB(); // Only seed DB in development
-    }
 
     app.MapControllers();
 }
