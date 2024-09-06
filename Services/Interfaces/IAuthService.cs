@@ -36,4 +36,5 @@ public interface IAuthService
     Task<int?> GetUserIdByNICAsync(string nic);
    Task<bool> AddNotificationAsync(FCMNotification notification);
    Task<bool> UpdateUserProfilePictureAsync(string username, string profilePicture);
+   Task RequestPasswordReset(string emailAddress);
 }

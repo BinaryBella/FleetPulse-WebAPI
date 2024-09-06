@@ -11,12 +11,14 @@ namespace FleetPulse_BackEndDevelopment.Services
     {
         private readonly MailSettings _mailSettings;
         private readonly ILogger<EmailUserCredentialService> _logger;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         public EmailUserCredentialService(IOptions<MailSettings> mailSettings,
-            ILogger<EmailUserCredentialService> logger)
+            ILogger<EmailUserCredentialService> logger,IWebHostEnvironment webHostEnvironment)
         {
             _mailSettings = mailSettings.Value;
             _logger = logger;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task SendUsernameAndPassword(string emailAddress, string userName, string password)
@@ -29,8 +31,7 @@ namespace FleetPulse_BackEndDevelopment.Services
             var builder = new BodyBuilder();
 
             // Load the HTML template
-            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "EmailTemplates",
-                "AccountCredentialsEmailTemplate.html");
+            var templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "EmailTemplates", "AccountCredentialsEmailTemplate.html");
 
             if (!File.Exists(templatePath))
             {

@@ -16,11 +16,13 @@ namespace FleetPulse_BackEndDevelopment.Services
     {
         private readonly MailSettings _mailSettings;
         private readonly ILogger<EmailService> _logger;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public EmailService(IOptions<MailSettings> mailSettings, ILogger<EmailService> logger)
+        public EmailService(IOptions<MailSettings> mailSettings, ILogger<EmailService> logger, IWebHostEnvironment webHostEnvironment)
         {
             _mailSettings = mailSettings.Value;
             _logger = logger;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task SendEmailAsync(MailRequest mailRequest)
@@ -33,8 +35,8 @@ namespace FleetPulse_BackEndDevelopment.Services
             var builder = new BodyBuilder();
 
             // Load the HTML template
-            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "EmailTemplates", "PasswordResetEmailTemplate.html");
-
+            var templatePath = Path.Combine(_webHostEnvironment.ContentRootPath, "EmailTemplates", "PasswordResetEmailTemplate.html");
+            
             if (!File.Exists(templatePath))
             {
                 _logger.LogError("Email template not found: {TemplatePath}", templatePath);

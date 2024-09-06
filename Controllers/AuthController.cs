@@ -515,5 +515,24 @@ namespace FleetPulse_BackEndDevelopment.Controllers
                 return StatusCode(500, "An error occurred while fetching driver NICs.");
             }
         }
+        
+        [HttpPost("RequestPasswordReset")]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] string userEmail)
+        {
+            try
+            {
+                // Call the UserService to handle the password reset request
+                await _authService.RequestPasswordReset(userEmail);
+                
+                // Return success if the email was sent
+                return Ok("Password reset request successfully sent to Admin.");
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions (such as user not found or no admin found)
+                return BadRequest(ex.Message);
+            }
+        }
+        
     }
 }
